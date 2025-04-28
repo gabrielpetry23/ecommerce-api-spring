@@ -1,0 +1,43 @@
+=== PRODUCTS ===
+POST    /products             - Criar novo produto (GERENTE, ADMIN)
+GET     /products/{id}         - Obter produto pelo ID (USER, GERENTE, ADMIN)
+PUT     /products/{id}         - Atualizar produto (GERENTE, ADMIN)
+DELETE  /products/{id}         - Deletar produto (GERENTE, ADMIN)
+GET     /products/all          - Listar todos produtos (USER, GERENTE, ADMIN)
+GET     /products/search       - Buscar produtos por nome/categoria (USER, GERENTE, ADMIN)
+
+=== CARTS ===
+POST    /carts                 - Criar novo carrinho (USER)
+POST    /carts/{cartId}/items   - Adicionar item ao carrinho (USER dono)
+PUT     /carts/{cartId}/items/{itemId} - Atualizar quantidade (USER dono)
+DELETE  /carts/{cartId}/items/{itemId} - Remover item (USER dono)
+GET     /carts/{userId}         - Visualizar carrinho (USER dono ou ADMIN)
+
+=== ORDERS ===
+POST    /orders                - Criar pedido a partir de carrinho (USER)
+GET     /orders/{orderId}       - Ver detalhes do pedido (USER dono ou GERENTE, ADMIN)
+GET     /orders/user/{userId}   - Listar todos pedidos do usuário (USER dono ou ADMIN)
+PUT     /orders/{orderId}/status - Atualizar status do pedido (GERENTE, ADMIN)
+GET     /orders/all             - Listar todos os pedidos (GERENTE, ADMIN)
+
+=== USERS ===
+POST    /users                 - Cadastrar novo usuário (Público)
+GET     /users/{id}             - Buscar usuário pelo ID (ADMIN)
+PUT     /users/{id}             - Atualizar seu próprio usuário (USER dono ou ADMIN)
+DELETE  /users/{id}             - Deletar usuário (ADMIN)
+GET     /users/all              - Listar todos usuários (ADMIN)
+
+=== CLIENTS ===
+POST    /clients               - Registrar novo Client OAuth2 (GERENTE, ADMIN)
+
+=== LOGIN ===
+POST    /login                 - Login de usuário, retorna token JWT (Público)
+
+=== OAUTH2 ===
+POST    /oauth2/token          - Obter token OAuth2 (Público)
+GET     /oauth2/authorize      - Autorizar OAuth2 (Público)
+GET     /oauth2/jwks           - Publicar chaves públicas para JWT (Público)
+
+=== ROOT ===
+GET     /                      - Mensagem de boas-vindas (USER, GERENTE, ADMIN)
+GET     /authorized            - Redirecionamento OAuth2 (Público)
