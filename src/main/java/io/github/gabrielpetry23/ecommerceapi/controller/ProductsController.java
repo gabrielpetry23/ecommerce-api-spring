@@ -6,13 +6,17 @@ import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.service.ProductsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -68,5 +72,49 @@ public class ProductsController implements GenericController{
         service.update(product);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProductDTO>> listAll() {
+        var products = service.listAll();
+        var dtos = products.stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductDTO>> search(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "price", required = false) BigDecimal price,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        Page<Product> products = service.search(name, category, description, price, maxPrice, minPrice, page, pageSize);
+        Page<ProductDTO> dtos = products.map(mapper::toDTO);
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/adm-search")
+    public ResponseEntity<Page<Product>> adminSearch(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "price", required = false) BigDecimal price,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "stock", required = false) Integer stock,
+            @RequestParam(value = "createdAt", required = false) String createdAt,
+            @RequestParam(value = "updatedAt", required = false) String updatedAt,
+            @RequestParam(value = "id", required = false) UUID id,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        Page<Product> products = service.admSearch(name, category, description, price, maxPrice, minPrice, stock, createdAt, updatedAt, id, page, pageSize);
+        return ResponseEntity.ok(products);
     }
 }
