@@ -1,14 +1,15 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.dto;
 
+import io.github.gabrielpetry23.ecommerceapi.model.Category;
+import io.github.gabrielpetry23.ecommerceapi.model.ProductImage;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-public record ProductDTO(
-
+public record ProductList(
         @NotBlank(message = "Name is required")
         String name,
 
@@ -19,11 +20,7 @@ public record ProductDTO(
         @Positive(message = "Price must be positive")
         BigDecimal price,
 
-        @NotNull(message = "Stock is required")
-        @Positive(message = "Stock must be positive")
-        Integer stock,
-
         @NotBlank(message = "Category is required")
-        String category
+        Category category
 ) {
 }

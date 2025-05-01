@@ -36,7 +36,7 @@ public class ProductsController implements GenericController{
 
     @PostMapping
 //    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public ResponseEntity<Object> save(@RequestBody @Valid ProductDTO dto) {
+    public ResponseEntity<Object> create(@RequestBody @Valid ProductDTO dto) {
         Product product = mapper.toEntity(dto);
         service.save(product);
         //URI location = URI.create("/products/" + product.getId());
@@ -45,7 +45,7 @@ public class ProductsController implements GenericController{
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getById(@PathVariable("id") String id) {
+        public ResponseEntity<ProductDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
                     var dto = mapper.toDTO(product);

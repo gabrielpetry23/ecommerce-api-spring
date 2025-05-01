@@ -6,31 +6,29 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "payment_methods")
 @Data
+@ToString(exclude = {"user"})
 @EntityListeners(AuditingEntityListener.class)
-@ToString(exclude = {"user", "items"})
-public class Cart {
-
+public class PaymentMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<CartItem> items = new ArrayList<>();
-    private List<CartItem> items;
+    private String type;
+    private String cardNumber;
+    private LocalDate expiryDate;
+    private String provider;
 
     @CreatedDate
     private LocalDateTime createdAt;
 }
-

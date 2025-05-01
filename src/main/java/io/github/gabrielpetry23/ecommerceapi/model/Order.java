@@ -19,17 +19,19 @@ import java.util.UUID;
 @Table(name = "orders")
 @Data
 @EntityListeners(AuditingEntityListener.class)
+//@ToString(exclude = {"user", "items"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
+    //private List<OrderItem> items = new ArrayList<>();
+    private List<OrderItem> items;
 
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal total;

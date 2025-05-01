@@ -1,43 +1,71 @@
-=== PRODUCTS ===
-POST    /products             - Criar novo produto (GERENTE, ADMIN)
-GET     /products/{id}         - Obter produto pelo ID (USER, GERENTE, ADMIN)
-PUT     /products/{id}         - Atualizar produto (GERENTE, ADMIN)
-DELETE  /products/{id}         - Deletar produto (GERENTE, ADMIN)
-GET     /products/all          - Listar todos produtos (USER, GERENTE, ADMIN)
-GET     /products/search       - Buscar produtos por nome/categoria (USER, GERENTE, ADMIN)
+USUÁRIOS
+========
+POST   /users                           Criar um novo usuário                         [Público]
+GET    /users/{id}                      Obter um usuário específico                   [USER (próprio), ADMIN, MANAGER]
+PUT    /users/{id}                      Atualizar um usuário                          [USER (próprio), ADMIN, MANAGER]
+DELETE /users/{id}                      Excluir um usuário                            [ADMIN, MANAGER]
+POST   /users/login                     Login                                         [Público]
 
-=== CARTS ===
-POST    /carts                 - Criar novo carrinho (USER)
-POST    /carts/{cartId}/items   - Adicionar item ao carrinho (USER dono)
-PUT     /carts/{cartId}/items/{itemId} - Atualizar quantidade (USER dono)
-DELETE  /carts/{cartId}/items/{itemId} - Remover item (USER dono)
-GET     /carts/{userId}         - Visualizar carrinho (USER dono ou ADMIN)
+PRODUTOS
+========
+POST   /products                        Criar um novo produto                         [ADMIN, MANAGER]
+GET    /products                        Listar todos os produtos                      [Público]
+GET    /products/{id}                   Obter um produto específico                   [Público]
+PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
+DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]
+GET    /products/categories             Obter todas as categorias                     [Público]
+GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
+POST   /products/{id}/reviews           Criar uma review                              [USER]
+POST   /products/{id}/images            Adicionar imagem ao produto                   [ADMIN, MANAGER]
+DELETE /products/{id}/images/{imageId}  Remover imagem do produto                     [ADMIN, MANAGER]
 
-=== ORDERS ===
-POST    /orders                - Criar pedido a partir de carrinho (USER)
-GET     /orders/{orderId}       - Ver detalhes do pedido (USER dono ou GERENTE, ADMIN)
-GET     /orders/user/{userId}   - Listar todos pedidos do usuário (USER dono ou ADMIN)
-PUT     /orders/{orderId}/status - Atualizar status do pedido (GERENTE, ADMIN)
-GET     /orders/all             - Listar todos os pedidos (GERENTE, ADMIN)
+CATEGORIAS
+==========
+GET    /categories                      Listar todas as categorias                    [Público]
+GET    /categories/{id}                 Obter uma categoria específica                [Público]
+POST   /categories                      Criar uma categoria                           [ADMIN, MANAGER]
+PUT    /categories/{id}                 Atualizar uma categoria                       [ADMIN, MANAGER]
+DELETE /categories/{id}                Excluir uma categoria                         [ADMIN, MANAGER]
 
-=== USERS ===
-POST    /users                 - Cadastrar novo usuário (Público)
-GET     /users/{id}             - Buscar usuário pelo ID (ADMIN)
-PUT     /users/{id}             - Atualizar seu próprio usuário (USER dono ou ADMIN)
-DELETE  /users/{id}             - Deletar usuário (ADMIN)
-GET     /users/all              - Listar todos usuários (ADMIN)
+CARRINHOS
+=========
+GET    /carts/{id}                      Obter um carrinho específico                  [USER (próprio), ADMIN, MANAGER]
+POST   /carts                           Criar um novo carrinho                        [USER]
+POST   /carts/{id}/items                Adicionar item ao carrinho                    [USER (dono)]
+PUT    /carts/{id}/items/{itemId}       Atualizar item no carrinho                    [USER (dono)]
+DELETE /carts/{id}/items/{itemId}       Remover item do carrinho                      [USER (dono)]
+DELETE /carts/{id}                      Esvaziar/Excluir o carrinho                   [USER (próprio), ADMIN, MANAGER]
+GET    /users/{userId}/cart             Obter carrinho de um usuário                  [USER (próprio), ADMIN, MANAGER]
 
-=== CLIENTS ===
-POST    /clients               - Registrar novo Client OAuth2 (GERENTE, ADMIN)
+PEDIDOS
+=======
+POST   /orders                          Criar novo pedido                              [USER]
+GET    /orders                          Listar todos os pedidos                        [ADMIN, MANAGER]
+GET    /orders/{id}                     Obter um pedido específico                     [USER (próprio), ADMIN, MANAGER]
+GET    /users/{userId}/orders           Obter pedidos de um usuário                    [USER (próprio), ADMIN, MANAGER]
+PUT    /orders/{id}/status              Atualizar status de um pedido                  [ADMIN, MANAGER]
+POST   /orders/{id}/items               Adicionar item ao pedido                       [ADMIN, MANAGER]
+GET    /orders/{orderId}/items          Obter itens de um pedido                       [USER (próprio), ADMIN, MANAGER]
 
-=== LOGIN ===
-POST    /login                 - Login de usuário, retorna token JWT (Público)
+CLIENTES (OAuth)
+================
+POST   /clients                         Criar um novo Client                           [ADMIN, MANAGER]
+GET    /clients/{id}                    Obter um Client específico                     [ADMIN, MANAGER]
+PUT    /clients/{id}                    Atualizar um Client                            [ADMIN, MANAGER]
+DELETE /clients/{id}                    Excluir um Client                              [ADMIN, MANAGER]
 
-=== OAUTH2 ===
-POST    /oauth2/token          - Obter token OAuth2 (Público)
-GET     /oauth2/authorize      - Autorizar OAuth2 (Público)
-GET     /oauth2/jwks           - Publicar chaves públicas para JWT (Público)
+ENDEREÇOS
+=========
+GET    /users/{userId}/addresses                  Obter endereços de um usuário          [USER (próprio), ADMIN, MANAGER]
+GET    /users/{userId}/addresses/{addressId}      Obter endereço específico              [USER (próprio), ADMIN, MANAGER]
+POST   /users/{userId}/addresses                  Criar endereço                         [USER (próprio)]
+PUT    /users/{userId}/addresses/{addressId}      Atualizar endereço                     [USER (próprio), ADMIN, MANAGER]
+DELETE /users/{userId}/addresses/{addressId}      Deletar endereço                       [USER (próprio), ADMIN, MANAGER]
 
-=== ROOT ===
-GET     /                      - Mensagem de boas-vindas (USER, GERENTE, ADMIN)
-GET     /authorized            - Redirecionamento OAuth2 (Público)
+MÉTODOS DE PAGAMENTO
+====================
+GET    /users/{userId}/payment-methods                    Obter métodos de pagamento        [USER (próprio), ADMIN, MANAGER]
+GET    /users/{userId}/payment-methods/{paymentMethodId}  Obter método de pagamento         [USER (próprio), ADMIN, MANAGER]
+POST   /users/{userId}/payment-methods                    Criar método de pagamento         [USER (próprio)]
+PUT    /users/{userId}/payment-methods/{paymentMethodId}  Atualizar método de pagamento     [USER (próprio), ADMIN, MANAGER]
+DELETE /users/{userId}/payment-methods/{paymentMethodId}  Deletar método de pagamento       [USER (próprio), ADMIN, MANAGER]

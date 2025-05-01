@@ -1,3 +1,4 @@
+-- USERS
 CREATE TABLE users (
     id UUID NOT NULL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
@@ -8,17 +9,49 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- CATEGORIES
+CREATE TABLE categories (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- PRODUCTS
 CREATE TABLE products (
     id UUID NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price NUMERIC(18,2) NOT NULL,
-    category VARCHAR(100) NOT NULL,
     stock INT NOT NULL,
+    user_id UUID,
+    category_id UUID,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_product FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
+-- PRODUCT IMAGES
+CREATE TABLE product_images (
+    id UUID NOT NULL PRIMARY KEY,
+    product_id UUID NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    is_main BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_product_image FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- PRODUCT REVIEWS
+CREATE TABLE product_reviews (
+    id UUID NOT NULL PRIMARY KEY,
+    product_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_product_review FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_review FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- CARTS
 CREATE TABLE carts (
     id UUID NOT NULL PRIMARY KEY,
     user_id UUID NOT NULL,
@@ -26,6 +59,7 @@ CREATE TABLE carts (
     CONSTRAINT fk_user_cart FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- CART ITEMS
 CREATE TABLE cart_items (
     id UUID NOT NULL PRIMARY KEY,
     cart_id UUID NOT NULL,
@@ -35,6 +69,7 @@ CREATE TABLE cart_items (
     CONSTRAINT fk_product_cart FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+-- ORDERS
 CREATE TABLE orders (
     id UUID NOT NULL PRIMARY KEY,
     user_id UUID NOT NULL,
@@ -46,7 +81,7 @@ CREATE TABLE orders (
     CONSTRAINT chk_status CHECK (status IN ('PENDING', 'PAID', 'IN_PREPARATION', 'IN_DELIVERY', 'DELIVERED', 'CANCELLED'))
 );
 
-
+-- ORDER ITEMS
 CREATE TABLE order_items (
     id UUID NOT NULL PRIMARY KEY,
     order_id UUID NOT NULL,
@@ -57,10 +92,42 @@ CREATE TABLE order_items (
     CONSTRAINT fk_product_order FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE client(
-   id UUID NOT NULL PRIMARY KEY,
-   client_id VARCHAR(150) NOT NULL,
-   client_secret VARCHAR(400) NOT NULL,
-   redirect_uri VARCHAR(200) NOT NULL,
-   scope VARCHAR(50)
+-- CLIENTS
+CREATE TABLE client (
+    id UUID NOT NULL PRIMARY KEY,
+    client_id VARCHAR(150) NOT NULL,
+    client_secret VARCHAR(400) NOT NULL,
+    redirect_uri VARCHAR(200) NOT NULL,
+    scope VARCHAR(50)
 );
+
+-- ADDRESSES
+CREATE TABLE addresses (
+    id UUID NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    street VARCHAR(255) NOT NULL,
+    number VARCHAR(20) NOT NULL,
+    complement VARCHAR(255),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    CONSTRAINT fk_user_address FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- PAYMENT METHODS
+CREATE TABLE payment_methods (
+    id UUID NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    card_number VARCHAR(255),
+    expiry_date DATE,
+    provider VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_payment_method FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- INDEXES
+CREATE INDEX idx_products_name ON products (name);
+CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
+CREATE INDEX idx_order_items_order_id ON order_items (order_id);

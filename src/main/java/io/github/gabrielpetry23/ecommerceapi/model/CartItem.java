@@ -2,12 +2,15 @@ package io.github.gabrielpetry23.ecommerceapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+
 import java.util.UUID;
 
 
 @Entity
 @Table(name = "cart_items")
 @Data
+@ToString(exclude = {"cart", "product"})
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

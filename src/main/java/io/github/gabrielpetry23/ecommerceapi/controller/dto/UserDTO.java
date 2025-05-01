@@ -13,6 +13,7 @@ public record UserDTO(
         String email,
         @NotBlank(message = "required field")
         String password,
+        //@ValidRole
         String role
 
 ) {

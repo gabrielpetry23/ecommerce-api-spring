@@ -24,7 +24,9 @@ public class ProductsService {
     private final ProductsRepository repository;
 
     public Product save(Product product) {
-//        validator.validate(product);
+////        validator.validate(product);
+//        Usuario currentUser = securityService.getCurrentUser();
+//        livro.setUsuario(currentUser);
         return repository.save(product);
     }
 
