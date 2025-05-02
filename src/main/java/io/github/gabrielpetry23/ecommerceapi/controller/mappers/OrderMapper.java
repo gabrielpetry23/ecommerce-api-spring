@@ -1,4 +1,4 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.mappers;
 
-public class OrderMapper {
+public interface OrderMapper {
 }

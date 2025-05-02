@@ -1,7 +1,9 @@
 package io.github.gabrielpetry23.ecommerceapi.repository.specs;
 
+import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -17,9 +19,15 @@ public class ProductSpecs {
                 cb.like(cb.upper(root.get("name")), "%" + name.toUpperCase() + "%");
     }
 
-    public static Specification<Product> categoryEqual(String category) {
-        return (root, query, cb) ->
-                cb.equal(cb.upper(root.get("category")), category.toUpperCase());
+    public static Specification<Product> categoryNameEqual(String categoryName) {
+        return (root, query, cb) -> {
+            Join<Product, Category> categoryJoin = root.join("category");
+            return cb.equal(cb.upper(categoryJoin.get("name")), categoryName.toUpperCase());
+        };
+    }
+
+    public static Specification<Product> categoryIdEqual(UUID categoryId) {
+        return (root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId);
     }
 
     public static Specification<Product> descriptionContainsKeywords(String description) {
