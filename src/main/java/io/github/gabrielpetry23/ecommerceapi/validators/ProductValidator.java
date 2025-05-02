@@ -2,7 +2,7 @@
 //
 //import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductDTO;
 //import io.github.gabrielpetry23.ecommerceapi.model.Product;
-//import io.github.gabrielpetry23.ecommerceapi.repository.ProductsRepository;
+//import io.github.gabrielpetry23.ecommerceapi.repository.ProductRepository;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.stereotype.Component;
 //
@@ -12,7 +12,7 @@
 //@RequiredArgsConstructor
 //public class ProductValidator {
 //
-//    private final ProductsRepository repository;
+//    private final ProductRepository repository;
 //
 //    public void validarNovoProduto(Product product) {
 //        if (existsProductWithTheSameNameAndCategory(product)) {

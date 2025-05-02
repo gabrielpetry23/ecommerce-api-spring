@@ -29,12 +29,12 @@ public class DatabaseConfiguration {
         config.setDriverClassName(driver);
         config.setJdbcUrl(url);
 
-        config.setMaximumPoolSize(10); // maximo conexoes liberadas
-        config.setMinimumIdle(1); // tamanho inicial do pool
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(1);
         config.setPoolName("ecommerce-db-pool");
-        config.setMaxLifetime(600000); // 600k ms (10 min) duração da conexao
-        config.setConnectionTimeout(100000); // timeout para construir uma conexão
-        config.setConnectionTestQuery("select 1"); // query de teste
+        config.setMaxLifetime(600000);
+        config.setConnectionTimeout(100000);
+        config.setConnectionTestQuery("select 1");
 
         return new HikariDataSource(config);
     }

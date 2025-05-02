@@ -1,18 +1,18 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
-import io.github.gabrielpetry23.ecommerceapi.service.ProductsService;
+import io.github.gabrielpetry23.ecommerceapi.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
-public class ProductsController implements GenericController{
+public class ProductController implements GenericController{
 
 //    === PRODUCTS ===
 //    POST    /products             - Criar novo produto (GERENTE, ADMIN)
@@ -31,12 +31,12 @@ public class ProductsController implements GenericController{
 //    GET     /products/all          - Listar todos produtos (USER, GERENTE, ADMIN)
 //    GET     /products/search       - Buscar produtos por nome/categoria (USER, GERENTE, ADMIN)
 
-    private final ProductsService service;
+    private final ProductService service;
     private final ProductMapper mapper;
 
     @PostMapping
-//    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public ResponseEntity<Object> create(@RequestBody @Valid ProductDTO dto) {
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<Object> create(@RequestBody @Valid ProductRequestDTO dto) {
         Product product = mapper.toEntity(dto);
         service.save(product);
         //URI location = URI.create("/products/" + product.getId());
@@ -45,7 +45,7 @@ public class ProductsController implements GenericController{
     }
 
     @GetMapping("/{id}")
-        public ResponseEntity<ProductDTO> getById(@PathVariable("id") String id) {
+        public ResponseEntity<ProductRequestDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
                     var dto = mapper.toDTO(product);
@@ -53,8 +53,9 @@ public class ProductsController implements GenericController{
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid ProductDTO dto) {
+    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid ProductRequestDTO dto) {
         var idProduct = UUID.fromString(id);
         Optional<Product> productOptional = service.findById(idProduct);
 
@@ -75,7 +76,7 @@ public class ProductsController implements GenericController{
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> listAll() {
+    public ResponseEntity<List<ProductRequestDTO>> listAll() {
         var products = service.listAll();
         var dtos = products.stream()
                 .map(mapper::toDTO)
@@ -84,7 +85,7 @@ public class ProductsController implements GenericController{
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<ProductDTO>> search(
+    public ResponseEntity<Page<ProductRequestDTO>> search(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "description", required = false) String description,
@@ -95,10 +96,11 @@ public class ProductsController implements GenericController{
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         Page<Product> products = service.search(name, category, description, price, maxPrice, minPrice, page, pageSize);
-        Page<ProductDTO> dtos = products.map(mapper::toDTO);
+        Page<ProductRequestDTO> dtos = products.map(mapper::toDTO);
         return ResponseEntity.ok(dtos);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @GetMapping("/adm-search")
     public ResponseEntity<Page<Product>> adminSearch(
             @RequestParam(value = "name", required = false) String name,

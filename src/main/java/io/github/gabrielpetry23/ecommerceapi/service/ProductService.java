@@ -1,8 +1,7 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
-import io.github.gabrielpetry23.ecommerceapi.model.User;
-import io.github.gabrielpetry23.ecommerceapi.repository.ProductsRepository;
+import io.github.gabrielpetry23.ecommerceapi.repository.ProductRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.specs.ProductSpecs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,17 +10,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ProductsService {
+public class ProductService {
 
 //    private final ProductValidator validator;
-    private final ProductsRepository repository;
+    private final ProductRepository repository;
 
     public Product save(Product product) {
 ////        validator.validate(product);

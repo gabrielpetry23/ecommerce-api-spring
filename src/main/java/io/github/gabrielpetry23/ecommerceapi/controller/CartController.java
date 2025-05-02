@@ -1,6 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.service.CartsService;
+import io.github.gabrielpetry23.ecommerceapi.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +13,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/carts")
 @RequiredArgsConstructor
-public class CartsController implements GenericController {
+public class CartController implements GenericController {
 
-    private final CartsService service;
+    private final CartService service;
 
-    @PostMapping
-    public ResponseEntity<Object> createCart(@RequestParam UUID userId) {
-        Cart
-    }
+//    @PostMapping
+//    public ResponseEntity<Object> createCart(@RequestParam UUID userId) {
+//        Cart
+//    }
 }

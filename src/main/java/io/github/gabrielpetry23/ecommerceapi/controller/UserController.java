@@ -1,7 +1,7 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.UserMapper;
-import io.github.gabrielpetry23.ecommerceapi.service.UsersService;
+import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,9 +11,9 @@ import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserDTO;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-public class UsersController {
+public class UserController {
 
-    private final UsersService service;
+    private final UserService service;
     private final UserMapper mapper;
 
     @PostMapping
