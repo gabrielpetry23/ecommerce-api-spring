@@ -25,7 +25,7 @@ GET    /categories                      Listar todas as categorias              
 GET    /categories/{id}                 Obter uma categoria específica                [Público]
 POST   /categories                      Criar uma categoria                           [ADMIN, MANAGER]
 PUT    /categories/{id}                 Atualizar uma categoria                       [ADMIN, MANAGER]
-DELETE /categories/{id}                Excluir uma categoria                         [ADMIN, MANAGER]
+DELETE /categories/{id}                 Excluir uma categoria                         [ADMIN, MANAGER]
 
 CARRINHOS
 =========

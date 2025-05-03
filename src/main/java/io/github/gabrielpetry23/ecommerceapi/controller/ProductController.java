@@ -30,15 +30,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductController implements GenericController{
 
-//    === PRODUCTS ===
-//    POST    /products             - Criar novo produto (GERENTE, ADMIN)
-//    GET     /products/{id}         - Obter produto pelo ID (USER, GERENTE, ADMIN)
-//    PUT     /products/{id}         - Atualizar produto (GERENTE, ADMIN)
-//    DELETE  /products/{id}         - Deletar produto (GERENTE, ADMIN)
-//    GET     /products/all          - Listar todos produtos (USER, GERENTE, ADMIN)
-//    GET     /products/search       - Buscar produtos por nome/categoria (USER, GERENTE, ADMIN)
-
-
 //    PRODUTOS
 //========
 //    POST   /products                        Criar um novo produto                         [ADMIN, MANAGER]
@@ -46,6 +37,8 @@ public class ProductController implements GenericController{
 //    GET    /products/{id}                   Obter um produto específico                   [Público]
 //    PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
 //    DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]
+//    GET    /products/search                 Buscar produtos por nome/categoria            [Público]
+//    GET    /products/adm-search             Buscar produtos por nome/categoria (admin)    [ADMIN, MANAGER]
 //    GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
 //    POST   /products/{id}/reviews           Criar uma review                              [USER]
 //    POST   /products/{id}/images            Adicionar imagem ao produto                   [ADMIN, MANAGER]
