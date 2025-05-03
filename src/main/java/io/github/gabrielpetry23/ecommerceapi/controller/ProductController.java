@@ -69,9 +69,8 @@ public class ProductController implements GenericController{
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid ProductRequestDTO dto) {
-        var idProduct = UUID.fromString(id);
-        Optional<Product> productOptional = service.findById(idProduct);
+    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody ProductUpdateDTO dto) {
+        Optional<Product> productOptional = service.findById(UUID.fromString(id));
 
         if (productOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -81,11 +80,26 @@ public class ProductController implements GenericController{
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.categoryId()));
 
         var product = productOptional.get();
-        product.setName(dto.name());
-        product.setDescription(dto.description());
-        product.setPrice(dto.price());
-        product.setCategory(category);
-        product.setStock(dto.stock());
+
+        if (product.getCategory() != null && !product.getCategory().getId().equals(category.getId())) {
+            product.setCategory(category);
+        }
+
+        if (dto.name() != null && !dto.name().isBlank()) {
+            product.setName(dto.name());
+        }
+
+        if (dto.description() != null && !dto.description().isBlank()) {
+            product.setDescription(dto.description());
+        }
+
+        if (dto.price() != null) {
+            product.setPrice(dto.price());
+        }
+
+        if (dto.stock() != null) {
+            product.setStock(dto.stock());
+        }
 
         service.update(product);
 

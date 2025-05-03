@@ -7,16 +7,13 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
-public record UserDTO(
-
-        @NotBlank(message = "required field")
+public record UserUpdateDTO(
         String name,
-        @Email(message = "invalid")
         String email,
-        @NotBlank(message = "required field")
         String password,
-        //@ValidRole
         String role,
-        List<AddressDTO> addresses
+        List<AddressDTO> addresses,
+        List<PaymentMethodDTO> paymentMethods
+
 ) {
 }

@@ -15,7 +15,7 @@ public class LoginViewController {
         return "login";
     }
 
-    @GetMapping("/")
+    @GetMapping
     @ResponseBody
     public String paginaHome(Authentication authentication) {
 

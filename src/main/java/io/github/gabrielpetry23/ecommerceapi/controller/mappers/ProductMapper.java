@@ -27,6 +27,6 @@ public abstract class ProductMapper {
 
     public abstract ProductReview toEntity(ProductReviewDTO dto);
 
-    @Mapping(source = "user.name", target = "userName")
+//    @Mapping(source = "user.name", target = "userName")
     public abstract ProductReviewResponseDTO toDTO(ProductReview entity);
 }

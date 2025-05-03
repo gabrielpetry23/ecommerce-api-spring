@@ -28,6 +28,8 @@ public class PaymentMethod {
     private String cardNumber;
     private LocalDate expiryDate;
     private String provider;
+    private String cardHolderName;
+    private String cvv;
 
     @CreatedDate
     private LocalDateTime createdAt;
