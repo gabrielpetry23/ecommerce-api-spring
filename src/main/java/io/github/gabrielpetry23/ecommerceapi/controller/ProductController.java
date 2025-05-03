@@ -1,8 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
@@ -61,7 +59,7 @@ public class ProductController implements GenericController{
     }
 
     @GetMapping("/{id}")
-        public ResponseEntity<ProductRequestDTO> getById(@PathVariable("id") String id) {
+        public ResponseEntity<ProductResponseDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
                     var dto = mapper.toDTO(product);
@@ -95,7 +93,7 @@ public class ProductController implements GenericController{
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductRequestDTO>> listAll() {
+    public ResponseEntity<List<ProductResponseDTO>> listAll() {
         var products = service.listAll();
         var dtos = products.stream()
                 .map(mapper::toDTO)
@@ -104,7 +102,7 @@ public class ProductController implements GenericController{
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<ProductRequestDTO>> search(
+    public ResponseEntity<Page<ProductResponseDTO>> search(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "category", required = false) String categoryName,
             @RequestParam(value = "description", required = false) String description,
@@ -115,7 +113,7 @@ public class ProductController implements GenericController{
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         Page<Product> products = service.search(name, categoryName, description, price, maxPrice, minPrice, page, pageSize);
-        Page<ProductRequestDTO> dtos = products.map(mapper::toDTO);
+        Page<ProductResponseDTO> dtos = products.map(mapper::toDTO);
         return ResponseEntity.ok(dtos);
     }
 
@@ -171,6 +169,28 @@ public class ProductController implements GenericController{
                             .map(mapper::toDTO)
                             .collect(Collectors.toList());
                     return ResponseEntity.ok(reviews);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PostMapping("/{id}/images")
+    public ResponseEntity<Object> addImage(@PathVariable("id") String id, @RequestBody @Valid ProductImageDTO dto) {
+        return service.findById(UUID.fromString(id))
+                .map(product -> {
+                    service.addImage(product, dto);
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @DeleteMapping("/{id}/images/{imageId}")
+    public ResponseEntity<Object> removeImage(@PathVariable("id") String id, @PathVariable("imageId") String imageId) {
+        return service.findById(UUID.fromString(id))
+                .map(product -> {
+                    service.removeImage(product, UUID.fromString(imageId));
+                    return ResponseEntity.noContent().build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

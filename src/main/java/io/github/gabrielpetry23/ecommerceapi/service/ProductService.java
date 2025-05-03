@@ -1,16 +1,15 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductImageDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidFieldException;
-import io.github.gabrielpetry23.ecommerceapi.model.Category;
-import io.github.gabrielpetry23.ecommerceapi.model.Product;
-import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
-import io.github.gabrielpetry23.ecommerceapi.model.User;
+import io.github.gabrielpetry23.ecommerceapi.model.*;
 import io.github.gabrielpetry23.ecommerceapi.repository.ProductRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.specs.ProductSpecs;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.CategoryValidator;
 import io.github.gabrielpetry23.ecommerceapi.validators.ProductValidator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -157,5 +156,37 @@ public class ProductService {
 
     public List<ProductReview> findReviewsByProduct(Product product) {
         return product.getReviews();
+    }
+
+    public void addImage(Product product, ProductImageDTO dto) {
+        if (product.getId() == null) {
+            throw new IllegalArgumentException("Product must exist to add an image");
+        }
+
+        if (dto.imageUrl() == null || dto.imageUrl().isEmpty()) {
+            throw new InvalidFieldException("url", "Image URL cannot be null or empty");
+        }
+
+        var image = new ProductImage();
+        image.setImageUrl(dto.imageUrl());
+        image.setMain(dto.isMain());
+        image.setProduct(product);
+        product.getImages().add(image);
+        repository.save(product);
+    }
+
+    public void removeImage(Product product, UUID imageId) {
+        if (product.getId() == null) {
+            throw new IllegalArgumentException("Product must exist to remove an image");
+        }
+
+        var image = product.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Image not found"));
+
+        product.getImages().remove(image);
+        repository.save(product);
+
     }
 }

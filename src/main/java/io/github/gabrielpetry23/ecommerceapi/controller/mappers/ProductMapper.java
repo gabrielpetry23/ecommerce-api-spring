@@ -1,6 +1,7 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.mappers;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
@@ -22,7 +23,7 @@ public abstract class ProductMapper {
     @Mapping(source = "category.id", target = "categoryId")
 //    @Mapping(source = "category.name", target = "categoryName")
 //    @Mapping(source = "category", target = "category")
-    public abstract ProductRequestDTO toDTO(Product entity);
+    public abstract ProductResponseDTO toDTO(Product entity);
 
     public abstract ProductReview toEntity(ProductReviewDTO dto);
 

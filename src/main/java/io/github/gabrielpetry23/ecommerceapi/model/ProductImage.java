@@ -23,5 +23,5 @@ public class ProductImage {
 
     private String imageUrl;
 
-    private boolean isMain;
+    private boolean isMain = false;
 }
