@@ -1,9 +1,11 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.mappers;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
+import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.repository.CategoryRepository;
-import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,4 +23,9 @@ public abstract class ProductMapper {
 //    @Mapping(source = "category.name", target = "categoryName")
 //    @Mapping(source = "category", target = "category")
     public abstract ProductRequestDTO toDTO(Product entity);
+
+    public abstract ProductReview toEntity(ProductReviewDTO dto);
+
+    @Mapping(source = "user.name", target = "userName")
+    public abstract ProductReviewResponseDTO toDTO(ProductReview entity);
 }

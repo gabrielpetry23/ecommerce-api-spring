@@ -27,7 +27,7 @@ public class ProductReview {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private int rating;
+    private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
 }

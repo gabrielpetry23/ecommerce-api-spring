@@ -64,6 +64,12 @@ public class GlobalExceptionHandler {
         return new ResponseError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseError.defaultResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseError handleUnhandledError(RuntimeException ex) {

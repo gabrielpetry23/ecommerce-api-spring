@@ -1,7 +1,10 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidFieldException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
+import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.ProductRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.specs.ProductSpecs;
@@ -122,5 +125,37 @@ public class ProductService {
         }
 
         return repository.findAll(specs, PageRequest.of(page, pageSize));
+    }
+
+    public void delete(Product product) {
+        if (product.getId() == null) {
+            throw new IllegalArgumentException("Product must exist to be deleted");
+        }
+        repository.delete(product);
+    }
+
+    public void addReview(Product product, ProductReviewDTO reviewDTO) {
+        if (product.getId() == null) {
+            throw new IllegalArgumentException("Product must exist to add a review");
+        }
+
+        if (reviewDTO.rating() == null || reviewDTO.rating() < 1 || reviewDTO.rating() > 10) {
+            throw new InvalidFieldException("rating", "Rating must be between 1 and 10");
+        }
+
+        var review = new ProductReview();
+        review.setRating(reviewDTO.rating());
+        review.setComment(reviewDTO.comment());
+        review.setProduct(product);
+
+        User currentUser = securityService.getCurrentUser();
+        review.setUser(currentUser);
+
+        product.getReviews().add(review);
+        repository.save(product);
+    }
+
+    public List<ProductReview> findReviewsByProduct(Product product) {
+        return product.getReviews();
     }
 }

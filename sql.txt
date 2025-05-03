@@ -44,7 +44,7 @@ CREATE TABLE product_reviews (
     id UUID NOT NULL PRIMARY KEY,
     product_id UUID NOT NULL,
     user_id UUID NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_product_review FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,

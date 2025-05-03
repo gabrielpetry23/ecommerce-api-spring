@@ -1,10 +1,13 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
+import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
 import io.github.gabrielpetry23.ecommerceapi.service.ProductService;
 import io.github.gabrielpetry23.ecommerceapi.validators.CategoryValidator;
@@ -43,7 +46,6 @@ public class ProductController implements GenericController{
 //    GET    /products/{id}                   Obter um produto específico                   [Público]
 //    PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
 //    DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]
-//    GET    /products/categories             Obter todas as categorias                     [Público]
 //    GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
 //    POST   /products/{id}/reviews           Criar uma review                              [USER]
 //    POST   /products/{id}/images            Adicionar imagem ao produto                   [ADMIN, MANAGER]
@@ -144,5 +146,39 @@ public class ProductController implements GenericController{
         return ResponseEntity.ok(products);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable("id") String id) {
+        return service.findById(UUID.fromString(id))
+                .map(product -> {
+                    service.delete(product);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
+    @PreAuthorize("permitAll()")
+    @PostMapping("/{id}/reviews")
+    public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
+        return service.findById(UUID.fromString(id))
+                .map(product -> {
+                    service.addReview(product, dto);
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<ProductReviewResponseDTO>> getReviews(@PathVariable("id") String id) {
+        return service.findById(UUID.fromString(id))
+                .map(product -> {
+                    List<ProductReviewResponseDTO> reviews = service.findReviewsByProduct(product)
+                            .stream()
+                            .map(mapper::toDTO)
+                            .collect(Collectors.toList());
+                    return ResponseEntity.ok(reviews);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
