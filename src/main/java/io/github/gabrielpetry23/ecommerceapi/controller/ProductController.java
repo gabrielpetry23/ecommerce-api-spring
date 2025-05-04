@@ -58,6 +58,7 @@ public class ProductController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
         public ResponseEntity<ProductResponseDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
@@ -106,6 +107,7 @@ public class ProductController implements GenericController{
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> listAll() {
         var products = service.listAll();
@@ -162,7 +164,7 @@ public class ProductController implements GenericController{
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/reviews")
     public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
         return service.findById(UUID.fromString(id))

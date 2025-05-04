@@ -1,0 +1,84 @@
+package io.github.gabrielpetry23.ecommerceapi.service;
+
+
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.model.Address;
+import io.github.gabrielpetry23.ecommerceapi.model.User;
+import io.github.gabrielpetry23.ecommerceapi.repository.AddressRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class AddressService {
+
+    private final AddressRepository addressRepository;
+
+    public Address createAddressForUser(User user, AddressDTO dto) {
+        Address address = new Address();
+        address.setStreet(dto.street());
+        address.setNumber(dto.number());
+        address.setCity(dto.city());
+        address.setState(dto.state());
+        address.setZipCode(dto.zipCode());
+        address.setCountry(dto.country());
+        address.setUser(user);
+        if (dto.complement() != null) {
+            address.setComplement(dto.complement());
+        }
+        return addressRepository.save(address);
+    }
+
+    public List<Address> findAllAddressesByUserId(UUID userId) {
+        return addressRepository.findAdressesByUserId(userId);
+    }
+
+    public Optional<Address> findAddressByUserIdAndAddressId(UUID userId, UUID addressId) {
+        return addressRepository.findByUserIdAndId(userId, addressId);
+    }
+
+    public Address updateAddress(Address address, AddressResponseDTO dto) {
+        if (address.getId() == null) {
+            throw new IllegalArgumentException("Address must exist to be updated");
+        }
+
+        if (dto.street() != null) {
+            address.setStreet(dto.street());
+        }
+
+        if (dto.number() != null) {
+            address.setNumber(dto.number());
+        }
+
+        if (dto.city() != null) {
+            address.setCity(dto.city());
+        }
+
+        if (dto.state() != null) {
+            address.setState(dto.state());
+        }
+
+        if (dto.zipCode() != null) {
+            address.setZipCode(dto.zipCode());
+        }
+
+        if (dto.country() != null) {
+            address.setCountry(dto.country());
+        }
+
+        if (dto.complement() != null) {
+            address.setComplement(dto.complement());
+        }
+
+        return addressRepository.save(address);
+    }
+
+    public void delete(Address address) {
+        addressRepository.delete(address);
+    }
+}

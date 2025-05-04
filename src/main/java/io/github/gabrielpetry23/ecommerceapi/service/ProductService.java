@@ -138,10 +138,6 @@ public class ProductService {
             throw new IllegalArgumentException("Product must exist to add a review");
         }
 
-        if (reviewDTO.rating() == null || reviewDTO.rating() < 1 || reviewDTO.rating() > 10) {
-            throw new InvalidFieldException("rating", "Rating must be between 1 and 10");
-        }
-
         var review = new ProductReview();
         review.setRating(reviewDTO.rating());
         review.setComment(reviewDTO.comment());

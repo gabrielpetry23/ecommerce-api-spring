@@ -18,5 +18,9 @@ public interface UserMapper {
 
     Address toEntity(AddressDTO dto);
 
+    AddressDTO toDTO(Address address);
+
+    PaymentMethodDTO toDTO(PaymentMethod paymentMethod);
+
     PaymentMethod toEntity(PaymentMethodDTO dto);
 }

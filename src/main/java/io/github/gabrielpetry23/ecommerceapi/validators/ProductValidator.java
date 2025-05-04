@@ -14,7 +14,6 @@ import java.util.Optional;
 public class ProductValidator {
 
     private final ProductRepository repository;
-    private final CategoryValidator categoryValidator;
 
     public void validateNewProduct(Product product) {
         if (product.getCategory() == null) {

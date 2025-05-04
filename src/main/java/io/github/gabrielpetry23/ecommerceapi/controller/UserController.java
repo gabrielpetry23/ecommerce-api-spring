@@ -1,11 +1,10 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserDetailsDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserUpdateDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.UserMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.*;
+import io.github.gabrielpetry23.ecommerceapi.service.AddressService;
 import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserDTO;
 
 import java.net.URI;
 import java.util.List;
@@ -27,6 +25,7 @@ public class UserController implements GenericController{
 
     private final UserService service;
     private final UserMapper mapper;
+    private final AddressService addressService;
 
 //    USUÁRIOS
 //========
@@ -36,14 +35,6 @@ public class UserController implements GenericController{
 //    DELETE /users/{id}                      Excluir um usuário                            [ADMIN, MANAGER]
 //    POST   /login                           Login                                         [Público]
 
-//    ENDEREÇOS
-//=========
-//    GET    /users/{userId}/addresses                  Obter endereços de um usuário          [USER (próprio), ADMIN, MANAGER]
-//    GET    /users/{userId}/addresses/{addressId}      Obter endereço específico              [USER (próprio), ADMIN, MANAGER]
-//    POST   /users/{userId}/addresses                  Criar endereço                         [USER (próprio)]
-//    PUT    /users/{userId}/addresses/{addressId}      Atualizar endereço                     [USER (próprio), ADMIN, MANAGER]
-//    DELETE /users/{userId}/addresses/{addressId}      Deletar endereço                       [USER (próprio), ADMIN, MANAGER]
-//
 //    MÉTODOS DE PAGAMENTO
 //====================
 //    GET    /users/{userId}/payment-methods                    Obter métodos de pagamento        [USER (próprio), ADMIN, MANAGER]
@@ -53,7 +44,7 @@ public class UserController implements GenericController{
 //    DELETE /users/{userId}/payment-methods/{paymentMethodId}  Deletar método de pagamento       [USER (próprio), ADMIN, MANAGER]
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Object> create(@RequestBody @Valid UserDTO dto) {
         var user = mapper.toEntity(dto);
         service.save(user);
@@ -72,6 +63,7 @@ public class UserController implements GenericController{
                     return ResponseEntity.notFound().build();
                 });
     }
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -144,5 +136,75 @@ public class UserController implements GenericController{
                 });
     }
 
+    //    ENDEREÇOS
+//=========
+//    GET    /users/{userId}/addresses                  Obter endereços de um usuário          [USER (próprio), ADMIN, MANAGER]
+//    GET    /users/{userId}/addresses/{addressId}      Obter endereço específico              [USER (próprio), ADMIN, MANAGER]
+//    POST   /users/{userId}/addresses                  Criar endereço                         [USER (próprio)]
+//    PUT    /users/{userId}/addresses/{addressId}      Atualizar endereço                     [USER (próprio), ADMIN, MANAGER]
+//    DELETE /users/{userId}/addresses/{addressId}      Deletar endereço                       [USER (próprio), ADMIN, MANAGER]
+//
 
+    @PostMapping("/{userId}/addresses")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Object> createAddress(@PathVariable("userId") String userId, @RequestBody @Valid AddressDTO dto) {
+        return service.findById(UUID.fromString(userId))
+                .map(user -> {
+                    service.addAddress(user, dto);
+                    return ResponseEntity.ok().build();
+                }).orElseGet(() -> {
+                    return ResponseEntity.notFound().build();
+                });
+    }
+
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('MANAGER')")
+    @GetMapping("/{userId}/addresses")
+    public ResponseEntity<List<AddressDTO>> getAddresses(@PathVariable("userId") String userId) {
+        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+        List<AddressDTO> addressDTOs = addressService.findAllAddressesByUserId(UUID.fromString(userId))
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(addressDTOs);
+    }
+
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('MANAGER')")
+    @GetMapping("/{userId}/addresses/{addressId}")
+    public ResponseEntity<AddressDTO> getAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
+        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+        return addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId))
+                .map(address -> {
+                    var dto = mapper.toDTO(address);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet(() -> {
+                    return ResponseEntity.notFound().build();
+                });
+    }
+
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('MANAGER')")
+    @PutMapping("/{userId}/addresses/{addressId}")
+    public ResponseEntity<Object> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId, @RequestBody @Valid AddressResponseDTO dto) {
+        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+        Optional<Address> address = addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
+
+        if (address.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        addressService.updateAddress(address.get(), dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('MANAGER')")
+    @DeleteMapping("/{userId}/addresses/{addressId}")
+    public ResponseEntity<Object> deleteAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
+        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+        return addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId))
+                .map(address -> {
+                    addressService.delete(address);
+                    return ResponseEntity.noContent().build();
+                }).orElseGet(() -> {
+                    return ResponseEntity.notFound().build();
+                });
+    }
 }
