@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AddressService {
 
-    private final AddressRepository addressRepository;
+    private final AddressRepository repository;
 
     public Address createAddressForUser(User user, AddressDTO dto) {
         Address address = new Address();
@@ -31,15 +31,15 @@ public class AddressService {
         if (dto.complement() != null) {
             address.setComplement(dto.complement());
         }
-        return addressRepository.save(address);
+        return repository.save(address);
     }
 
     public List<Address> findAllAddressesByUserId(UUID userId) {
-        return addressRepository.findAdressesByUserId(userId);
+        return repository.findAdressesByUserId(userId);
     }
 
     public Optional<Address> findAddressByUserIdAndAddressId(UUID userId, UUID addressId) {
-        return addressRepository.findByUserIdAndId(userId, addressId);
+        return repository.findByUserIdAndId(userId, addressId);
     }
 
     public Address updateAddress(Address address, AddressResponseDTO dto) {
@@ -75,10 +75,10 @@ public class AddressService {
             address.setComplement(dto.complement());
         }
 
-        return addressRepository.save(address);
+        return repository.save(address);
     }
 
     public void delete(Address address) {
-        addressRepository.delete(address);
+        repository.delete(address);
     }
 }
