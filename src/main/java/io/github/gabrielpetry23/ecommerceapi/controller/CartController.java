@@ -17,8 +17,14 @@ public class CartController implements GenericController {
 
     private final CartService service;
 
-//    @PostMapping
-//    public ResponseEntity<Object> createCart(@RequestParam UUID userId) {
-//        Cart
-//    }
+//    CARRINHOS
+//=========
+//    GET    /carts/{id}                      Obter um carrinho específico                  [USER (próprio), ADMIN, MANAGER]
+//    POST   /carts                           Criar um novo carrinho                        [USER]
+//    POST   /carts/{id}/items                Adicionar item ao carrinho                    [USER (dono)]
+//    PUT    /carts/{id}/items/{itemId}       Atualizar item no carrinho                    [USER (dono)]
+//    DELETE /carts/{id}/items/{itemId}       Remover item do carrinho                      [USER (dono)]
+//    DELETE /carts/{id}                      Esvaziar/Excluir o carrinho                   [USER (próprio), ADMIN, MANAGER]
+//    GET    /users/{userId}/cart             Obter carrinho de um usuário                  [USER (próprio), ADMIN, MANAGER]
+
 }

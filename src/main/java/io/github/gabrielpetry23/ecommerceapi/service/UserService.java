@@ -57,7 +57,7 @@ public class UserService {
         return repository.findAll();
     }
 
-    public void addAddress(User user, AddressDTO dto) {
+    public Address addAddress(User user, AddressDTO dto) {
 
         if (user.getId() == null) {
             throw new IllegalArgumentException("User must exist to add an address");
@@ -69,13 +69,14 @@ public class UserService {
         user.getAddresses().add(createdAddress);
 
         update(user);
+        return createdAddress;
     }
 
     public void validateCurrentUserAccessOrAdmin(UUID userId) {
         validator.validateCurrentUserAccessOrAdmin(userId);
     }
 
-    public void addPaymentMethod(User user, PaymentMethodRequestDTO dto) {
+    public PaymentMethod addPaymentMethod(User user, PaymentMethodRequestDTO dto) {
         if (user.getId() == null) {
             throw new IllegalArgumentException("User must exist to add a payment method");
         }
@@ -86,5 +87,6 @@ public class UserService {
 
         user.getPaymentMethods().add(createdPaymentMethod);
         update(user);
+        return createdPaymentMethod;
     }
 }

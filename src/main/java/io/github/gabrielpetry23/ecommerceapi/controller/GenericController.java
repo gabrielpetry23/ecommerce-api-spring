@@ -13,4 +13,12 @@ public interface GenericController {
                 .buildAndExpand(id)
                 .toUri();
     }
+
+    default URI generateNestedHeaderLocation(UUID parentId, String nestedPath, UUID childId) {
+        return ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path("/{parentId}/" + nestedPath + "/{childId}")
+                .buildAndExpand(parentId, childId)
+                .toUri();
+    }
 }

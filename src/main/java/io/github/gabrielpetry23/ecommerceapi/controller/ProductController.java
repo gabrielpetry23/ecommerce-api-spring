@@ -5,6 +5,7 @@ import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
+import io.github.gabrielpetry23.ecommerceapi.model.ProductImage;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
 import io.github.gabrielpetry23.ecommerceapi.service.ProductService;
@@ -53,7 +54,6 @@ public class ProductController implements GenericController{
         categoryValidator.validateExistingCategoryId(dto.categoryId());
         Product product = mapper.toEntity(dto);
         service.save(product);
-        //URI location = URI.create("/products/" + product.getId());
         URI location = generateHeaderLocation(product.getId());
         return ResponseEntity.created(location).build();
     }
@@ -169,8 +169,9 @@ public class ProductController implements GenericController{
     public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
-                    service.addReview(product, dto);
-                    return ResponseEntity.ok().build();
+                    ProductReview review = service.addReview(product, dto);
+                    URI location = generateNestedHeaderLocation(product.getId(), "reviews", review.getId());
+                    return ResponseEntity.created(location).build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -194,8 +195,9 @@ public class ProductController implements GenericController{
     public ResponseEntity<Object> addImage(@PathVariable("id") String id, @RequestBody @Valid ProductImageDTO dto) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
-                    service.addImage(product, dto);
-                    return ResponseEntity.ok().build();
+                    ProductImage img = service.addImage(product, dto);
+                    URI location = generateNestedHeaderLocation(product.getId(), "images", img.getId());
+                    return ResponseEntity.created(location).build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

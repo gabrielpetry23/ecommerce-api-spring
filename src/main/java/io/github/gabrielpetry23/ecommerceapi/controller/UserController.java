@@ -147,8 +147,9 @@ public class UserController implements GenericController{
     public ResponseEntity<Object> createAddress(@PathVariable("userId") String userId, @RequestBody @Valid AddressDTO dto) {
         return service.findById(UUID.fromString(userId))
                 .map(user -> {
-                    service.addAddress(user, dto);
-                    return ResponseEntity.ok().build();
+                    Address address = service.addAddress(user, dto);
+                    URI location = generateNestedHeaderLocation(user.getId(), "adresses" ,address.getId());
+                    return ResponseEntity.created(location).build();
                 }).orElseGet(() -> {
                     return ResponseEntity.notFound().build();
                 });
@@ -218,8 +219,9 @@ public class UserController implements GenericController{
     public ResponseEntity<Object> createPaymentMethod(@PathVariable("userId") String userId, @RequestBody @Valid PaymentMethodRequestDTO dto) {
         return service.findById(UUID.fromString(userId))
                 .map(user -> {
-                    service.addPaymentMethod(user, dto);
-                    return ResponseEntity.ok().build();
+                    PaymentMethod paymentMethod = service.addPaymentMethod(user, dto);
+                    URI location = generateNestedHeaderLocation(user.getId(), "payment-methods", paymentMethod.getId());
+                    return ResponseEntity.created(location).build();
                 }).orElseGet(() -> {
                     return ResponseEntity.notFound().build();
                 });

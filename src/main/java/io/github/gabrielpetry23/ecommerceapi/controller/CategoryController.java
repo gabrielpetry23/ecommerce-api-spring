@@ -40,7 +40,7 @@ public class CategoryController {
 
     @GetMapping
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<CategoryResponseDTO>> findAll() {
+    public ResponseEntity<List<CategoryResponseDTO>> listAll() {
         var categories = service.findAll();
         List<CategoryResponseDTO> categoriesDtos = categories.stream()
                 .map(mapper::toDTO)

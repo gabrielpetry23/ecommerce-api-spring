@@ -133,7 +133,7 @@ public class ProductService {
         repository.delete(product);
     }
 
-    public void addReview(Product product, ProductReviewDTO reviewDTO) {
+    public ProductReview addReview(Product product, ProductReviewDTO reviewDTO) {
         if (product.getId() == null) {
             throw new IllegalArgumentException("Product must exist to add a review");
         }
@@ -148,13 +148,14 @@ public class ProductService {
 
         product.getReviews().add(review);
         repository.save(product);
+        return review;
     }
 
     public List<ProductReview> findReviewsByProduct(Product product) {
         return product.getReviews();
     }
 
-    public void addImage(Product product, ProductImageDTO dto) {
+    public ProductImage addImage(Product product, ProductImageDTO dto) {
         if (product.getId() == null) {
             throw new IllegalArgumentException("Product must exist to add an image");
         }
@@ -169,6 +170,7 @@ public class ProductService {
         image.setProduct(product);
         product.getImages().add(image);
         repository.save(product);
+        return image;
     }
 
     public void removeImage(Product product, UUID imageId) {
