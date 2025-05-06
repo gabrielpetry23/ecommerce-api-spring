@@ -5,10 +5,6 @@ import java.util.List;
 public record UserUpdateDTO(
         String name,
         String email,
-        String password,
-        String role,
-        List<AddressDTO> addresses,
-        List<PaymentMethodRequestDTO> paymentMethods
-
+        String password
 ) {
 }

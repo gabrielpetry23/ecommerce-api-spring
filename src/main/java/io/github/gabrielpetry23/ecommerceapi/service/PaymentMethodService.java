@@ -1,6 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.PaymentMethodMapper;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
@@ -8,6 +10,7 @@ import io.github.gabrielpetry23.ecommerceapi.repository.PaymentMethodRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,5 +81,18 @@ public class PaymentMethodService {
 
     public void delete(PaymentMethod address) {
         repository.delete(address);
+    }
+
+    public List<PaymentMethodResponseDTO> findAllPaymentMethodsDTOByUserId(UUID userId) {
+        return repository.findAllByUserId(userId)
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public PaymentMethodResponseDTO findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID userId, UUID id) {
+        return repository.findByUserIdAndId(userId, id)
+                .map(mapper::toDTO)
+                .orElse(null);
     }
 }

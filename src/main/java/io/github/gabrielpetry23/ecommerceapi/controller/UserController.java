@@ -26,8 +26,6 @@ public class UserController implements GenericController{
 
     private final UserService service;
     private final UserMapper mapper;
-    private final AddressMapper addressMapper;
-    private final PaymentMethodMapper paymentMethodMapper;
     private final PaymentMethodService paymentMethodService;
     private final AddressService addressService;
 
@@ -75,48 +73,11 @@ public class UserController implements GenericController{
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid UserUpdateDTO dto) {
-        Optional<User> userOptional = service.findById(UUID.fromString(id));
-
-        if (userOptional.isEmpty()) {
+        if(!service.existsById(UUID.fromString(id))) {
             return ResponseEntity.notFound().build();
         }
 
-        var user = userOptional.get();
-
-        if (dto.name() != null) {
-            user.setName(dto.name());
-        }
-
-        if (dto.email() != null) {
-            user.setEmail(dto.email());
-        }
-
-        if (dto.password() != null) {
-            user.setPassword(dto.password());
-        }
-
-        if (dto.role() != null) {
-            user.setRole(dto.role());
-        }
-
-        if (dto.addresses() != null) {
-            List<Address> addresses = dto.addresses().stream()
-                    .map(addressMapper::toEntity)
-                    .toList();
-
-            user.setAddresses(addresses);
-        }
-
-        if (dto.paymentMethods() != null) {
-            List<PaymentMethod> paymentMethods = dto.paymentMethods().stream()
-                    .map(paymentMethodMapper::toEntity)
-                    .toList();
-
-            user.setPaymentMethods(paymentMethods);
-        }
-
-        service.update(user);
-
+        service.update(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
 
     }
@@ -158,30 +119,36 @@ public class UserController implements GenericController{
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses")
     public ResponseEntity<List<AddressDTO>> getAddresses(@PathVariable("userId") String userId) {
+        if (service.existsById(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
         service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        List<AddressDTO> addressDTOs = addressService.findAllAddressesByUserId(UUID.fromString(userId))
-                .stream()
-                .map(addressMapper::toDTO)
-                .toList();
+
+        List<AddressDTO> addressDTOs = addressService.findAllAddressesDTOByUserId(UUID.fromString(userId));
         return ResponseEntity.ok(addressDTOs);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses/{addressId}")
     public ResponseEntity<AddressDTO> getAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
+
+        if (service.existsById(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
         service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        return addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId))
-                .map(address -> {
-                    var dto = addressMapper.toDTO(address);
-                    return ResponseEntity.ok(dto);
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+        AddressDTO addressDTO = addressService.findAddressDTOByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
+        return addressDTO != null ? ResponseEntity.ok(addressDTO) : ResponseEntity.notFound().build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @PutMapping("/{userId}/addresses/{addressId}")
-    public ResponseEntity<Object> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId, @RequestBody @Valid AddressResponseDTO dto) {
+    public ResponseEntity<Object> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId, @RequestBody AddressDTO dto) {
+
+        if (service.existsById(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
         service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
         Optional<Address> address = addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
 
@@ -230,25 +197,25 @@ public class UserController implements GenericController{
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods")
     public ResponseEntity<List<PaymentMethodResponseDTO>> getPaymentMethods(@PathVariable("userId") String userId) {
+        if(service.existsById(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
         service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        List<PaymentMethodResponseDTO> paymentMethodDTOs = paymentMethodService.findAllPaymentMethodesByUserId(UUID.fromString(userId))
-                .stream()
-                .map(paymentMethodMapper::toDTO)
-                .toList();
+        List<PaymentMethodResponseDTO> paymentMethodDTOs = paymentMethodService.findAllPaymentMethodsDTOByUserId(UUID.fromString(userId));
         return ResponseEntity.ok(paymentMethodDTOs);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods/{paymentMethodId}")
     public ResponseEntity<PaymentMethodResponseDTO> getPaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId) {
+        if(service.existsById(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
         service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        return paymentMethodService.findPaymentMethodByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId))
-                .map(paymentMethod -> {
-                    var dto = paymentMethodMapper.toDTO(paymentMethod);
-                    return ResponseEntity.ok(dto);
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+        PaymentMethodResponseDTO paymentMethodDTO = paymentMethodService.findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
+        return paymentMethodDTO != null ? ResponseEntity.ok(paymentMethodDTO) : ResponseEntity.notFound().build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")

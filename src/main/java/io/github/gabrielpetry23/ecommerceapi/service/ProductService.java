@@ -29,6 +29,7 @@ public class ProductService {
     private final ProductRepository repository;
     private final CategoryValidator categoryValidator;
     private final SecurityService securityService;
+    private final ProductReviewService reviewService;
 
     public Product save(Product product) {
         validator.validateNewProduct(product);
@@ -138,13 +139,7 @@ public class ProductService {
             throw new IllegalArgumentException("Product must exist to add a review");
         }
 
-        var review = new ProductReview();
-        review.setRating(reviewDTO.rating());
-        review.setComment(reviewDTO.comment());
-        review.setProduct(product);
-
-        User currentUser = securityService.getCurrentUser();
-        review.setUser(currentUser);
+        ProductReview review = reviewService.createProductReviewForProduct(product, reviewDTO);
 
         product.getReviews().add(review);
         repository.save(product);
@@ -186,5 +181,9 @@ public class ProductService {
         product.getImages().remove(image);
         repository.save(product);
 
+    }
+
+    public boolean existsById(UUID uuid) {
+        return repository.existsById(uuid);
     }
 }

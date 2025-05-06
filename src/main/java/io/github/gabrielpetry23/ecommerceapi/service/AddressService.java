@@ -2,7 +2,7 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.AddressMapper;
 import io.github.gabrielpetry23.ecommerceapi.model.Address;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.AddressRepository;
@@ -18,6 +18,7 @@ import java.util.UUID;
 public class AddressService {
 
     private final AddressRepository repository;
+    private final AddressMapper mapper;
 
     public Address createAddressForUser(User user, AddressDTO dto) {
         Address address = new Address();
@@ -34,15 +35,11 @@ public class AddressService {
         return repository.save(address);
     }
 
-    public List<Address> findAllAddressesByUserId(UUID userId) {
-        return repository.findAdressesByUserId(userId);
-    }
-
     public Optional<Address> findAddressByUserIdAndAddressId(UUID userId, UUID addressId) {
         return repository.findByUserIdAndId(userId, addressId);
     }
 
-    public Address updateAddress(Address address, AddressResponseDTO dto) {
+    public Address updateAddress(Address address, AddressDTO dto) {
         if (address.getId() == null) {
             throw new IllegalArgumentException("Address must exist to be updated");
         }
@@ -80,5 +77,18 @@ public class AddressService {
 
     public void delete(Address address) {
         repository.delete(address);
+    }
+
+    public List<AddressDTO> findAllAddressesDTOByUserId(UUID userId) {
+        return repository.findAdressesByUserId(userId)
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public AddressDTO findAddressDTOByUserIdAndAddressId(UUID userId, UUID id) {
+        return repository.findByUserIdAndId(userId, id)
+                .map(mapper::toDTO)
+                .orElse(null);
     }
 }

@@ -8,6 +8,7 @@ import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductImage;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
+import io.github.gabrielpetry23.ecommerceapi.service.ProductReviewService;
 import io.github.gabrielpetry23.ecommerceapi.service.ProductService;
 import io.github.gabrielpetry23.ecommerceapi.validators.CategoryValidator;
 import jakarta.validation.Valid;
@@ -40,6 +41,7 @@ public class ProductController implements GenericController{
 //    GET    /products/adm-search             Buscar produtos por nome/categoria (admin)    [ADMIN, MANAGER]
 //    GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
 //    POST   /products/{id}/reviews           Criar uma review                              [USER]
+//    DELETE /products/{id}/reviews/{reviewId}  Excluir uma review                          [USER (próprio), ADMIN, MANAGER]
 //    POST   /products/{id}/images            Adicionar imagem ao produto                   [ADMIN, MANAGER]
 //    DELETE /products/{id}/images/{imageId}  Remover imagem do produto                     [ADMIN, MANAGER]
 
@@ -47,6 +49,7 @@ public class ProductController implements GenericController{
     private final ProductMapper mapper;
     private final CategoryService categoryService;
     private final CategoryValidator categoryValidator;
+    private final ProductReviewService reviewService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -176,18 +179,14 @@ public class ProductController implements GenericController{
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<ProductReviewResponseDTO>> getReviews(@PathVariable("id") String id) {
-        return service.findById(UUID.fromString(id))
-                .map(product -> {
-                    List<ProductReviewResponseDTO> reviews = service.findReviewsByProduct(product)
-                            .stream()
-                            .map(mapper::toDTO)
-                            .collect(Collectors.toList());
-                    return ResponseEntity.ok(reviews);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (!service.existsById(UUID.fromString(id))) {
+            return ResponseEntity.notFound().build();
+        }
+        List<ProductReviewResponseDTO> reviewsDto = reviewService.findAllProductReviewsDTOByProductId(UUID.fromString(id));
+        return ResponseEntity.ok(reviewsDto);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")

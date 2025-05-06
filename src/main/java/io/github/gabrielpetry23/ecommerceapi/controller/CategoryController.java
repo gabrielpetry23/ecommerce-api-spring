@@ -26,12 +26,13 @@ public class CategoryController {
 //==========
 //    GET    /categories                      Listar todas as categorias                    [Público]
 //    GET    /categories/{id}                 Obter uma categoria específica                [Público]
+//   GET    /categories/{id}/products         Listar produtos de uma categoria              [Público]
 //    POST   /categories                      Criar uma categoria                           [ADMIN, MANAGER]
 //    PUT    /categories/{id}                 Atualizar uma categoria                       [ADMIN, MANAGER]
 //    DELETE /categories/{id}                 Excluir uma categoria                         [ADMIN, MANAGER]
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Object> save(@RequestBody CategoryDTO categoryDTO) {
         var category = mapper.toEntity(categoryDTO);
         service.save(category);

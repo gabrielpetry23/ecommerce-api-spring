@@ -3,6 +3,7 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 import aj.org.objectweb.asm.commons.Remapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserUpdateDTO;
 import io.github.gabrielpetry23.ecommerceapi.model.Address;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
@@ -37,10 +38,6 @@ public class UserService {
         repository.save(user);
     }
 
-    public void update(User user) {
-        repository.save(user);
-    }
-
     public User findByEmail(String email) {
         return repository.findByEmail(email);
     }
@@ -68,7 +65,7 @@ public class UserService {
         Address createdAddress = addresService.createAddressForUser(user, dto);
         user.getAddresses().add(createdAddress);
 
-        update(user);
+        repository.save(user);
         return createdAddress;
     }
 
@@ -86,7 +83,35 @@ public class UserService {
         PaymentMethod createdPaymentMethod = paymentMethodService.createPaymentMethodForUser(user, dto);
 
         user.getPaymentMethods().add(createdPaymentMethod);
-        update(user);
+        repository.save(user);
         return createdPaymentMethod;
+    }
+
+    public boolean existsById(UUID userId) {
+        return repository.existsById(userId);
+    }
+
+    public void update(UUID userId, UserUpdateDTO dto) {
+        Optional<User> userOptional = findById(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        User user = userOptional.get();
+
+        if (dto.name() != null) {
+            user.setName(dto.name());
+        }
+
+        if (dto.email() != null) {
+            user.setEmail(dto.email());
+        }
+
+        if (dto.password() != null) {
+            user.setPassword(dto.password());
+        }
+
+        repository.save(user);
     }
 }
