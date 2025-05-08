@@ -1,5 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.repository.CategoryRepository;
@@ -42,10 +43,17 @@ public class CategoryService {
         repository.save(category);
     }
 
-    public void delete(Category category) {
-        if (category == null) {
-            throw new IllegalArgumentException("Category must exist to be deleted");
-        }
+//    public void delete(Category category) {
+//        if (category == null) {
+//            throw new IllegalArgumentException("Category must exist to be deleted");
+//        }
+//        repository.delete(category);
+//    }
+
+    public void deleteById(String id) {
+        Category category = repository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
         repository.delete(category);
     }
 }

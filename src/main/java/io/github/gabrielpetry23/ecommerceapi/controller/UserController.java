@@ -2,10 +2,13 @@ package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.AddressMapper;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CartMapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.PaymentMethodMapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.UserMapper;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.*;
 import io.github.gabrielpetry23.ecommerceapi.service.AddressService;
+import io.github.gabrielpetry23.ecommerceapi.service.CartService;
 import io.github.gabrielpetry23.ecommerceapi.service.PaymentMethodService;
 import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.validation.Valid;
@@ -26,8 +29,6 @@ public class UserController implements GenericController{
 
     private final UserService service;
     private final UserMapper mapper;
-    private final PaymentMethodService paymentMethodService;
-    private final AddressService addressService;
 
 //    USUÁRIOS
 //========
@@ -73,10 +74,6 @@ public class UserController implements GenericController{
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid UserUpdateDTO dto) {
-        if(!service.existsById(UUID.fromString(id))) {
-            return ResponseEntity.notFound().build();
-        }
-
         service.update(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
 
@@ -85,13 +82,15 @@ public class UserController implements GenericController{
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> delete(@PathVariable("id") String id) {
-        return service.findById(UUID.fromString(id))
-                .map(user -> {
-                    service.delete(user);
-                    return ResponseEntity.noContent().build();
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+//        return service.findById(UUID.fromString(id))
+//                .map(user -> {
+//                    service.delete(user);
+//                    return ResponseEntity.noContent().build();
+//                }).orElseGet(() -> {
+//                    return ResponseEntity.notFound().build();
+//                });
+        service.deleteById(UUID.fromString(id));
+        return ResponseEntity.noContent().build();
     }
 
     //    ENDEREÇOS
@@ -106,71 +105,68 @@ public class UserController implements GenericController{
     @PostMapping("/{userId}/addresses")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createAddress(@PathVariable("userId") String userId, @RequestBody @Valid AddressDTO dto) {
-        return service.findById(UUID.fromString(userId))
-                .map(user -> {
-                    Address address = service.addAddress(user, dto);
-                    URI location = generateNestedHeaderLocation(user.getId(), "adresses" ,address.getId());
-                    return ResponseEntity.created(location).build();
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+        Address address = service.addAddress(UUID.fromString(userId), dto);
+        URI location = generateNestedHeaderLocation(UUID.fromString(userId), "addresses", address.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses")
     public ResponseEntity<List<AddressDTO>> getAddresses(@PathVariable("userId") String userId) {
-        if (service.existsById(UUID.fromString(userId))) {
-            return ResponseEntity.notFound().build();
-        }
-
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-
-        List<AddressDTO> addressDTOs = addressService.findAllAddressesDTOByUserId(UUID.fromString(userId));
+//
+//        if (service.findById(UUID.fromString(userId)).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//
+//        List<AddressDTO> addressDTOs = addressService.findAllAddressesDTOByUserId(UUID.fromString(userId));
+//        return ResponseEntity.ok(addressDTOs);
+        List<AddressDTO> addressDTOs = service.findAllAddressesDTOByUserId(UUID.fromString(userId));
         return ResponseEntity.ok(addressDTOs);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses/{addressId}")
     public ResponseEntity<AddressDTO> getAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
-
-        if (service.existsById(UUID.fromString(userId))) {
-            return ResponseEntity.notFound().build();
-        }
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        AddressDTO addressDTO = addressService.findAddressDTOByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
-        return addressDTO != null ? ResponseEntity.ok(addressDTO) : ResponseEntity.notFound().build();
+//
+//        if (service.findById(UUID.fromString(userId)).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        AddressDTO addressDTO = addressService.findAddressDTOByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
+//        return addressDTO != null ? ResponseEntity.ok(addressDTO) : ResponseEntity.notFound().build();
+        AddressDTO addressDTO = service.findAddressDTOByUserIdAndId(userId, addressId);
+        return ResponseEntity.ok(addressDTO);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @PutMapping("/{userId}/addresses/{addressId}")
     public ResponseEntity<Object> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId, @RequestBody AddressDTO dto) {
 
-        if (service.existsById(UUID.fromString(userId))) {
-            return ResponseEntity.notFound().build();
-        }
+//        if (service.findById(UUID.fromString(userId)).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        Optional<Address> address = addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
+//
+//        if (address.isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
 
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        Optional<Address> address = addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId));
-
-        if (address.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        addressService.updateAddress(address.get(), dto);
+        service.updateAddress(userId, addressId, dto);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @DeleteMapping("/{userId}/addresses/{addressId}")
     public ResponseEntity<Object> deleteAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        return addressService.findAddressByUserIdAndAddressId(UUID.fromString(userId), UUID.fromString(addressId))
-                .map(address -> {
-                    addressService.delete(address);
-                    return ResponseEntity.noContent().build();
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        addressService.deleteAddress(UUID.fromString(userId), UUID.fromString(addressId));
+//        return ResponseEntity.noContent().build();
+        service.deleteAddress(userId, addressId);
+        return ResponseEntity.noContent().build();
     }
 
     //    MÉTODOS DE PAGAMENTO
@@ -184,64 +180,71 @@ public class UserController implements GenericController{
     @PostMapping("/{userId}/payment-methods")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createPaymentMethod(@PathVariable("userId") String userId, @RequestBody @Valid PaymentMethodRequestDTO dto) {
-        return service.findById(UUID.fromString(userId))
-                .map(user -> {
-                    PaymentMethod paymentMethod = service.addPaymentMethod(user, dto);
-                    URI location = generateNestedHeaderLocation(user.getId(), "payment-methods", paymentMethod.getId());
-                    return ResponseEntity.created(location).build();
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+//        return service.findById(UUID.fromString(userId))
+//                .map(user -> {
+//                    PaymentMethod paymentMethod = service.addPaymentMethod(user, dto);
+//                    URI location = generateNestedHeaderLocation(user.getId(), "payment-methods", paymentMethod.getId());
+//                    return ResponseEntity.created(location).build();
+//                }).orElseGet(() -> {
+//                    return ResponseEntity.notFound().build();
+//                });
+        PaymentMethod paymentMethod = service.addPaymentMethod(UUID.fromString(userId), dto);
+        URI location = generateNestedHeaderLocation(UUID.fromString(userId), "payment-methods", paymentMethod.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods")
     public ResponseEntity<List<PaymentMethodResponseDTO>> getPaymentMethods(@PathVariable("userId") String userId) {
-        if(service.existsById(UUID.fromString(userId))) {
-            return ResponseEntity.notFound().build();
-        }
-
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        List<PaymentMethodResponseDTO> paymentMethodDTOs = paymentMethodService.findAllPaymentMethodsDTOByUserId(UUID.fromString(userId));
+//        if(service.findById(UUID.fromString(userId)).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        List<PaymentMethodResponseDTO> paymentMethodDTOs = paymentMethodService.findAllPaymentMethodsDTOByUserId(UUID.fromString(userId));
+//        return ResponseEntity.ok(paymentMethodDTOs);
+        List<PaymentMethodResponseDTO> paymentMethodDTOs = service.findAllPaymentMethodsDTOByUserId(userId);
         return ResponseEntity.ok(paymentMethodDTOs);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods/{paymentMethodId}")
     public ResponseEntity<PaymentMethodResponseDTO> getPaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId) {
-        if(service.existsById(UUID.fromString(userId))) {
-            return ResponseEntity.notFound().build();
-        }
-
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        PaymentMethodResponseDTO paymentMethodDTO = paymentMethodService.findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
-        return paymentMethodDTO != null ? ResponseEntity.ok(paymentMethodDTO) : ResponseEntity.notFound().build();
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        PaymentMethodResponseDTO paymentMethodDTO = paymentMethodService.findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
+//        return paymentMethodDTO != null ? ResponseEntity.ok(paymentMethodDTO) : ResponseEntity.notFound().build();
+        PaymentMethodResponseDTO paymentMethodDTO = service.findPaymentMethodDTOByUserIdAndId(userId, paymentMethodId);
+        return ResponseEntity.ok(paymentMethodDTO);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @PutMapping("/{userId}/payment-methods/{paymentMethodId}")
     public ResponseEntity<Object> updatePaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId, @RequestBody PaymentMethodRequestDTO dto) {
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        Optional<PaymentMethod> paymentMethod = paymentMethodService.findPaymentMethodByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
-
-        if (paymentMethod.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        paymentMethodService.updatePaymentMethod(paymentMethod.get(), dto);
+        service.updatePaymentMethod(userId, paymentMethodId, dto);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @DeleteMapping("/{userId}/payment-methods/{paymentMethodId}")
     public ResponseEntity<Object> deletePaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId) {
-        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
-        return paymentMethodService.findPaymentMethodByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId))
-                .map(paymentMethod -> {
-                    paymentMethodService.delete(paymentMethod);
-                    return ResponseEntity.noContent().build();
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+        service.deletePaymentMethod(userId, paymentMethodId);
+        return ResponseEntity.noContent().build();
+    }
+
+    //    GET    /users/{userId}/cart             Obter carrinho de um usuário                  [USER (próprio), ADMIN, MANAGER]
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    @GetMapping("/{userId}/cart")
+    public ResponseEntity<CartResponseDTO> getCart(@PathVariable("userId") String userId) {
+//        if (service.findById(UUID.fromString(userId)).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
+//        Cart cart = cartService.findByUserId(UUID.fromString(userId)).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+//        CartResponseDTO cartDTO = cartMapper.toDTO(cart);
+//        return ResponseEntity.ok(cartDTO);
+        CartResponseDTO cartDTO = service.findCartDTOByUserId(UUID.fromString(userId));
+        return ResponseEntity.ok(cartDTO);
     }
 }

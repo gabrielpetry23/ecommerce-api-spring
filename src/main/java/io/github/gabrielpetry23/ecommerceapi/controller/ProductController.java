@@ -38,7 +38,6 @@ public class ProductController implements GenericController{
 //    PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
 //    DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]
 //    GET    /products/search                 Buscar produtos por nome/categoria            [Público]
-//    GET    /products/adm-search             Buscar produtos por nome/categoria (admin)    [ADMIN, MANAGER]
 //    GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
 //    POST   /products/{id}/reviews           Criar uma review                              [USER]
 //    DELETE /products/{id}/reviews/{reviewId}  Excluir uma review                          [USER (próprio), ADMIN, MANAGER]
@@ -47,9 +46,7 @@ public class ProductController implements GenericController{
 
     private final ProductService service;
     private final ProductMapper mapper;
-    private final CategoryService categoryService;
     private final CategoryValidator categoryValidator;
-    private final ProductReviewService reviewService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -74,39 +71,7 @@ public class ProductController implements GenericController{
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody ProductUpdateDTO dto) {
-        Optional<Product> productOptional = service.findById(UUID.fromString(id));
-
-        if (productOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Category category = categoryService.findById(dto.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.categoryId()));
-
-        var product = productOptional.get();
-
-        if (product.getCategory() != null && !product.getCategory().getId().equals(category.getId())) {
-            product.setCategory(category);
-        }
-
-        if (dto.name() != null && !dto.name().isBlank()) {
-            product.setName(dto.name());
-        }
-
-        if (dto.description() != null && !dto.description().isBlank()) {
-            product.setDescription(dto.description());
-        }
-
-        if (dto.price() != null) {
-            product.setPrice(dto.price());
-        }
-
-        if (dto.stock() != null) {
-            product.setStock(dto.stock());
-        }
-
-        service.update(product);
-
+        service.updateProduct(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
     }
 
@@ -128,87 +93,82 @@ public class ProductController implements GenericController{
             @RequestParam(value = "price", required = false) BigDecimal price,
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "stock", required = false) Integer stock,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
-        Page<Product> products = service.search(name, categoryName, description, price, maxPrice, minPrice, page, pageSize);
+        Page<Product> products = service.search(name, categoryName, description, price, maxPrice, minPrice, stock, page, pageSize);
         Page<ProductResponseDTO> dtos = products.map(mapper::toDTO);
         return ResponseEntity.ok(dtos);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @GetMapping("/adm-search")
-    public ResponseEntity<Page<Product>> adminSearch(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "category", required = false) String categoryName,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "price", required = false) BigDecimal price,
-            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
-            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
-            @RequestParam(value = "stock", required = false) Integer stock,
-            @RequestParam(value = "createdAt", required = false) String createdAt,
-            @RequestParam(value = "updatedAt", required = false) String updatedAt,
-            @RequestParam(value = "id", required = false) UUID id,
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
-    ) {
-        Page<Product> products = service.admSearch(name, categoryName, description, price, maxPrice, minPrice, stock, createdAt, updatedAt, id, page, pageSize);
-        return ResponseEntity.ok(products);
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") String id) {
-        return service.findById(UUID.fromString(id))
-                .map(product -> {
-                    service.delete(product);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        service.deleteById(UUID.fromString(id));
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/reviews")
     public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
-        return service.findById(UUID.fromString(id))
-                .map(product -> {
-                    ProductReview review = service.addReview(product, dto);
-                    URI location = generateNestedHeaderLocation(product.getId(), "reviews", review.getId());
-                    return ResponseEntity.created(location).build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+//        return service.findById(UUID.fromString(id))
+//                .map(product -> {
+//                    ProductReview review = service.addReview(product, dto);
+//                    URI location = generateNestedHeaderLocation(product.getId(), "reviews", review.getId());
+//                    return ResponseEntity.created(location).build();
+//                })
+//                .orElseGet(() -> ResponseEntity.notFound().build());
+
+        ProductReview review = service.addReview(UUID.fromString(id), dto);
+        URI location = generateNestedHeaderLocation(review.getProduct().getId(), "reviews", review.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PreAuthorize("permitAll()")
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<ProductReviewResponseDTO>> getReviews(@PathVariable("id") String id) {
-        if (!service.existsById(UUID.fromString(id))) {
-            return ResponseEntity.notFound().build();
-        }
-        List<ProductReviewResponseDTO> reviewsDto = reviewService.findAllProductReviewsDTOByProductId(UUID.fromString(id));
+//        if (!service.existsById(UUID.fromString(id))) {
+//            return ResponseEntity.notFound().build();
+//        }
+//        List<ProductReviewResponseDTO> reviewsDto = reviewService.findAllProductReviewsDTOByProductId(UUID.fromString(id));
+//        return ResponseEntity.ok(reviewsDto);
+        List<ProductReviewResponseDTO> reviewsDto = service.findAllProductReviewsDTOByProductId(id);
         return ResponseEntity.ok(reviewsDto);
+    }
+
+    @PreAuthorize("hasAnyRole('USER, MANAGER', 'ADMIN')")
+    @DeleteMapping("/{id}/reviews/{reviewId}")
+    public ResponseEntity<Object> deleteReview(@PathVariable("id") String id, @PathVariable("reviewId") String reviewId) {
+        service.deleteReview(id, reviewId);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PostMapping("/{id}/images")
     public ResponseEntity<Object> addImage(@PathVariable("id") String id, @RequestBody @Valid ProductImageDTO dto) {
-        return service.findById(UUID.fromString(id))
-                .map(product -> {
-                    ProductImage img = service.addImage(product, dto);
-                    URI location = generateNestedHeaderLocation(product.getId(), "images", img.getId());
-                    return ResponseEntity.created(location).build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+//        return service.findById(UUID.fromString(id))
+//                .map(product -> {
+//                    ProductImage img = service.addImage(product, dto);
+//                    URI location = generateNestedHeaderLocation(product.getId(), "images", img.getId());
+//                    return ResponseEntity.created(location).build();
+//                })
+//                .orElseGet(() -> ResponseEntity.notFound().build());
+        ProductImage image = service.addImage(UUID.fromString(id), dto);
+        URI location = generateNestedHeaderLocation(image.getProduct().getId(), "images", image.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @DeleteMapping("/{id}/images/{imageId}")
     public ResponseEntity<Object> removeImage(@PathVariable("id") String id, @PathVariable("imageId") String imageId) {
-        return service.findById(UUID.fromString(id))
-                .map(product -> {
-                    service.removeImage(product, UUID.fromString(imageId));
-                    return ResponseEntity.noContent().build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+//        return service.findById(UUID.fromString(id))
+//                .map(product -> {
+//                    service.removeImage(product, UUID.fromString(imageId));
+//                    return ResponseEntity.noContent().build();
+//                })
+//                .orElseGet(() -> ResponseEntity.notFound().build());
+        service.deleteImage(id, imageId);
+        return ResponseEntity.noContent().build();
     }
 }

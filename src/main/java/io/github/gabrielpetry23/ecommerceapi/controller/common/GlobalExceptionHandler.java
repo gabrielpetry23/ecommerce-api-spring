@@ -2,10 +2,7 @@ package io.github.gabrielpetry23.ecommerceapi.controller.common;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CustomFieldError;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ResponseError;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidFieldException;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.OperationNotAllowedException;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.DuplicateRecordException;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -68,6 +65,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseError handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseError.defaultResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseError handleEntityNotFoundException(EntityNotFoundException ex) {
+        return new ResponseError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), List.of());
     }
 
     @ExceptionHandler(RuntimeException.class)

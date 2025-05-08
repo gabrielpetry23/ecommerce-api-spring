@@ -4,10 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record CartDTO(
-        UUID id,
-        UUID userId,
-        List<CartItemDTO> items,
-        LocalDateTime createdAt
+public record CartResponseDTO(
+    UserNameIdDTO user,
+    List<CartItemResponseDTO> items
 ) {
 }

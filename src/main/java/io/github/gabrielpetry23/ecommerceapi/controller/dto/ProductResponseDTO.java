@@ -13,8 +13,9 @@ public record ProductResponseDTO(
         String name,
         String description,
         BigDecimal price,
-        UUID categoryId,
+        CategoryDTO category,
         List<ProductImageDTO> images,
-        List<ProductReviewResponseDTO> reviews
+        List<ProductReviewResponseDTO> reviews,
+        Integer stock
 ) {
 }

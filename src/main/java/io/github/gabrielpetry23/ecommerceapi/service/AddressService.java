@@ -3,6 +3,7 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.AddressMapper;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Address;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.AddressRepository;
@@ -39,10 +40,10 @@ public class AddressService {
         return repository.findByUserIdAndId(userId, addressId);
     }
 
-    public Address updateAddress(Address address, AddressDTO dto) {
-        if (address.getId() == null) {
-            throw new IllegalArgumentException("Address must exist to be updated");
-        }
+    public Address updateAddress(UUID userId, UUID addressID, AddressDTO dto) {
+
+        Address address = repository.findByUserIdAndId(userId, addressID)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
         if (dto.street() != null) {
             address.setStreet(dto.street());
@@ -86,9 +87,19 @@ public class AddressService {
                 .toList();
     }
 
-    public AddressDTO findAddressDTOByUserIdAndAddressId(UUID userId, UUID id) {
+    public AddressDTO findAddressDTOByUserIdAndId(UUID userId, UUID id) {
         return repository.findByUserIdAndId(userId, id)
                 .map(mapper::toDTO)
                 .orElse(null);
+    }
+
+//    public void deleteAddress(UUID userId, UUID addressId) {
+//        Address address = repository.findByUserIdAndId(userId, addressId)
+//                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+//        repository.delete(address);
+//    }
+
+    public Optional<Address> findAddressByUserIdAndId(UUID userId, UUID addressId) {
+        return repository.findByUserIdAndId(userId, addressId);
     }
 }

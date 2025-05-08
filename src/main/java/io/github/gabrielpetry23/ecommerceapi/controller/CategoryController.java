@@ -68,10 +68,12 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> delete(@PathVariable("id") String id) {
-        return service.findById(UUID.fromString(id))
-                .map(category -> {
-                    service.delete(category);
-                    return ResponseEntity.noContent().build();
-                }).orElseGet(() -> ResponseEntity.notFound().build());
+//        return service.findById(UUID.fromString(id))
+//                .map(category -> {
+//                    service.delete(category);
+//                    return ResponseEntity.noContent().build();
+//                }).orElseGet(() -> ResponseEntity.notFound().build());
+        service.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -56,4 +56,8 @@ public class ProductReviewService {
         userValidator.validateCurrentUserAccess(review.getUser().getId());
         repository.delete(review);
     }
+
+    public Optional<ProductReview> findById(UUID id) {
+        return repository.findById(id);
+    }
 }

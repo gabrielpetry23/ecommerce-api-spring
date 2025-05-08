@@ -13,5 +13,6 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, UU
 //    @Query("SELECT a FROM PaymentMethod a WHERE a.user.id = :userId")
 //    List<PaymentMethod> findPaymentMethodByUserId(@Param("userId") UUID userId);
     List<PaymentMethod> findAllByUserId(UUID userId);
-    Optional<PaymentMethod> findByUserIdAndId(UUID userId, UUID id);
+
+    Optional<PaymentMethod> findByIdAndUserId(UUID paymentId, UUID userId);
 }

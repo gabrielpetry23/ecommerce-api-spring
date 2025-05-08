@@ -1,9 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
 import aj.org.objectweb.asm.commons.Remapper;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserUpdateDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Address;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
@@ -32,6 +31,7 @@ public class UserService {
     private final UserValidator validator;
     private final AddressService addresService;
     private final PaymentMethodService paymentMethodService;
+    private final CartService cartService;
 
     public void save(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
@@ -46,7 +46,9 @@ public class UserService {
         return repository.findById(id);
     }
 
-    public void delete(User user) {
+    public void deleteById(UUID id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         repository.delete(user);
     }
 
@@ -54,11 +56,10 @@ public class UserService {
         return repository.findAll();
     }
 
-    public Address addAddress(User user, AddressDTO dto) {
+    public Address addAddress(UUID userId, AddressDTO dto) {
 
-        if (user.getId() == null) {
-            throw new IllegalArgumentException("User must exist to add an address");
-        }
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         validator.validateCurrentUserAccess(user.getId());
 
@@ -73,10 +74,10 @@ public class UserService {
         validator.validateCurrentUserAccessOrAdmin(userId);
     }
 
-    public PaymentMethod addPaymentMethod(User user, PaymentMethodRequestDTO dto) {
-        if (user.getId() == null) {
-            throw new IllegalArgumentException("User must exist to add a payment method");
-        }
+    public PaymentMethod addPaymentMethod(UUID userId, PaymentMethodRequestDTO dto) {
+
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         validator.validateCurrentUserAccess(user.getId());
 
@@ -95,7 +96,7 @@ public class UserService {
         Optional<User> userOptional = findById(userId);
 
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+            throw new EntityNotFoundException("User not found");
         }
 
         User user = userOptional.get();
@@ -109,9 +110,104 @@ public class UserService {
         }
 
         if (dto.password() != null) {
-            user.setPassword(dto.password());
+            user.setPassword(encoder.encode(dto.password()));
         }
 
         repository.save(user);
+    }
+
+    public List<AddressDTO> findAllAddressesDTOByUserId(UUID id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return addresService.findAllAddressesDTOByUserId(user.getId());
+    }
+
+    public CartResponseDTO findCartDTOByUserId(UUID id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return cartService.findCartDTOByUserId(id);
+    }
+
+    public void deletePaymentMethod(String userId, String paymentMethodId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        PaymentMethod paymentMethod = paymentMethodService.findByIdAndUserId(UUID.fromString(paymentMethodId), user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Payment method not found"));
+
+        user.getPaymentMethods().remove(paymentMethod);
+        repository.save(user);
+        paymentMethodService.delete(paymentMethod);
+    }
+
+    public void deleteAddress(String userId, String addressId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        Address address = addresService.findAddressByUserIdAndId(UUID.fromString(userId), UUID.fromString(addressId))
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+
+        user.getAddresses().remove(address);
+        repository.save(user);
+        addresService.delete(address);
+    }
+
+    public void updatePaymentMethod(String userId, String paymentMethodId, PaymentMethodRequestDTO dto) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        paymentMethodService.updatePaymentMethod(UUID.fromString(userId), UUID.fromString(paymentMethodId), dto);
+
+        repository.save(user);
+    }
+
+    public void updateAddress(String userId, String addressId, AddressDTO dto) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        addresService.updateAddress(UUID.fromString(userId), UUID.fromString(addressId), dto);
+
+        repository.save(user);
+    }
+
+    public List<PaymentMethodResponseDTO> findAllPaymentMethodsDTOByUserId(String userId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return paymentMethodService.findAllPaymentMethodsDTOByUserId(UUID.fromString(userId));
+    }
+
+    public PaymentMethodResponseDTO findPaymentMethodDTOByUserIdAndId(String userId, String paymentMethodId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return paymentMethodService.findPaymentMethodDTOByUserIdAndId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
+    }
+
+    public AddressDTO findAddressDTOByUserIdAndId(String userId, String addressId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return addresService.findAddressDTOByUserIdAndId(UUID.fromString(userId), UUID.fromString(addressId));
     }
 }

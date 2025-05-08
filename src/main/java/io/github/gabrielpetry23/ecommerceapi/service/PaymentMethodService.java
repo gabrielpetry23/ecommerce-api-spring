@@ -4,6 +4,7 @@ import aj.org.objectweb.asm.commons.Remapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.PaymentMethodMapper;
+import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.PaymentMethodRepository;
@@ -42,11 +43,10 @@ public class PaymentMethodService {
         return repository.findAllByUserId(userId);
     }
 
-    public Optional<PaymentMethod> findPaymentMethodByUserIdAndPaymentMethodId(UUID userId, UUID addressId) {
-        return repository.findByUserIdAndId(userId, addressId);
-    }
+    public void updatePaymentMethod(UUID userId, UUID paymentId, PaymentMethodRequestDTO dto) {
 
-    public PaymentMethod updatePaymentMethod(PaymentMethod paymentMethod, PaymentMethodRequestDTO dto) {
+        PaymentMethod paymentMethod = repository.findByIdAndUserId(paymentId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("PaymentMethod not found"));
 
         if (paymentMethod == null) {
             throw new IllegalArgumentException("PaymentMethod must exist to be updated");
@@ -76,11 +76,17 @@ public class PaymentMethodService {
             paymentMethod.setProvider(dto.provider());
         }
 
-        return repository.save(paymentMethod);
+        repository.save(paymentMethod);
     }
 
-    public void delete(PaymentMethod address) {
-        repository.delete(address);
+    public void delete(PaymentMethod paymentMethod) {
+        repository.delete(paymentMethod);
+    }
+
+    public void deletePaymentMethod(UUID userId, UUID paymentMethodId) {
+        PaymentMethod paymentMethod = repository.findByIdAndUserId(paymentMethodId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("PaymentMethod not found"));
+        repository.delete(paymentMethod);
     }
 
     public List<PaymentMethodResponseDTO> findAllPaymentMethodsDTOByUserId(UUID userId) {
@@ -90,9 +96,13 @@ public class PaymentMethodService {
                 .toList();
     }
 
-    public PaymentMethodResponseDTO findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID userId, UUID id) {
-        return repository.findByUserIdAndId(userId, id)
+    public PaymentMethodResponseDTO findPaymentMethodDTOByUserIdAndId(UUID userId, UUID id) {
+        return repository.findByIdAndUserId(id, userId)
                 .map(mapper::toDTO)
-                .orElse(null);
+                .orElseThrow(() -> new EntityNotFoundException("PaymentMethod not found"));
+    }
+
+    public Optional<PaymentMethod> findByIdAndUserId(UUID paymentId, UUID userId) {
+        return repository.findByIdAndUserId(paymentId, userId);
     }
 }

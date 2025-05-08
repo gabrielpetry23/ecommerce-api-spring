@@ -1,9 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.mappers;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
 import io.github.gabrielpetry23.ecommerceapi.repository.CategoryRepository;
@@ -20,9 +17,8 @@ public abstract class ProductMapper {
     @Mapping(target = "category", expression = "java(categoryRepository.findById(dto.categoryId()).orElse(null))")
     public abstract Product toEntity(ProductRequestDTO dto);
 
-    @Mapping(source = "category.id", target = "categoryId")
-//    @Mapping(source = "category.name", target = "categoryName")
-//    @Mapping(source = "category", target = "category")
+    @Mapping(source = "category.id", target = "category.id")
+    @Mapping(source = "category.name", target = "category.name")
     public abstract ProductResponseDTO toDTO(Product entity);
 
     public abstract ProductReview toEntity(ProductReviewDTO dto);

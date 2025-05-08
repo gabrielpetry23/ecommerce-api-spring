@@ -36,7 +36,7 @@ public class UserValidator {
         boolean isPrivileged = "ADMIN".equals(role) || "MANAGER".equals(role);
 
         if (!isSameUser && !isPrivileged) {
-            throw new AccessDeniedException("Acesso negado.");
+            throw new AccessDeniedException("Access denied.");
         }
     }
 }
