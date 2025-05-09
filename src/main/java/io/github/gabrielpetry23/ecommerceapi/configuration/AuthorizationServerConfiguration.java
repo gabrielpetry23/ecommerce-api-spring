@@ -9,6 +9,7 @@ import io.github.gabrielpetry23.ecommerceapi.security.CustomAuthentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,7 +50,9 @@ public class AuthorizationServerConfiguration {
 
         http
                 .securityMatcher(endpointsMatcher)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> {
+                    auth.anyRequest().authenticated();
+                })
                 .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
                 .formLogin(configurer -> configurer.loginPage("/login"))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

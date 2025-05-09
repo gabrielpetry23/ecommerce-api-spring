@@ -31,7 +31,6 @@ public class ClientController {
     private final ClientMapper mapper;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid ClientDTO dto) {
         var client = mapper.toEntity(dto);

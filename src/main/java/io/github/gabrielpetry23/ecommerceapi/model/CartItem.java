@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 
@@ -26,5 +27,7 @@ public class CartItem {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    BigDecimal total;
 }
 

@@ -7,6 +7,6 @@ public record CartItemResponseDTO(
         UUID id,
         ProductIdentifierDTO product,
         Integer quantity,
-        BigDecimal totalPrice
+        BigDecimal total
 ) {
 }

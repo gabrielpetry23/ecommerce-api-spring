@@ -38,7 +38,6 @@ public class JwtCustomAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-
     private boolean shouldConvert(Authentication authentication) {
         return authentication instanceof JwtAuthenticationToken;
     }

@@ -63,21 +63,23 @@ public class CartController implements GenericController {
         return ResponseEntity.created(location).build();
     }
 
+    @PutMapping("/{cartId}/items/{itemId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> updateItemQuantity(@PathVariable("cartId") String cartId, @PathVariable("itemId") String itemId, @RequestBody CartItemRequestDTO dto) {
         service.updateItemQuantity(UUID.fromString(cartId), UUID.fromString(itemId), dto);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Object> deleteCart(@PathVariable String id) {
         service.validateCartOwnerIsCurrentUserOrAdminOrManager(UUID.fromString(id));
         service.deleteById(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{cartId}/items/{itemId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> deleteItem(@PathVariable("cartId") String cartId, @PathVariable("itemId") String itemId) {
         service.deleteItem(UUID.fromString(cartId), UUID.fromString(itemId));
         return ResponseEntity.noContent().build();

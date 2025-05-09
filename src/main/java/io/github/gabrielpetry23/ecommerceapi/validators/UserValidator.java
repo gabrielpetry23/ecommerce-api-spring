@@ -29,9 +29,6 @@ public class UserValidator {
     public void validateCurrentUserAccessOrAdmin(UUID userId) {
         User currentUser = securityService.getCurrentUser();
         boolean isSameUser = currentUser.getId().equals(userId);
-
-        System.out.println("currentUser ID: " + currentUser.getId());
-        System.out.println("requested userId: " + userId);
         String role = currentUser.getRole();
         boolean isPrivileged = "ADMIN".equals(role) || "MANAGER".equals(role);
 

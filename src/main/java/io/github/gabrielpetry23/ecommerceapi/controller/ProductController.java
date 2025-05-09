@@ -58,8 +58,8 @@ public class ProductController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
         public ResponseEntity<ProductResponseDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
@@ -68,15 +68,15 @@ public class ProductController implements GenericController{
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody ProductUpdateDTO dto) {
         service.updateProduct(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("permitAll()")
     @GetMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<ProductResponseDTO>> listAll() {
         var products = service.listAll();
         var dtos = products.stream()
@@ -86,6 +86,7 @@ public class ProductController implements GenericController{
     }
 
     @GetMapping("/search")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Page<ProductResponseDTO>> search(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "category", required = false) String categoryName,
@@ -102,15 +103,15 @@ public class ProductController implements GenericController{
         return ResponseEntity.ok(dtos);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> delete(@PathVariable("id") String id) {
         service.deleteById(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/reviews")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
 //        return service.findById(UUID.fromString(id))
 //                .map(product -> {
@@ -125,8 +126,8 @@ public class ProductController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("permitAll()")
     @GetMapping("/{id}/reviews")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<ProductReviewResponseDTO>> getReviews(@PathVariable("id") String id) {
 //        if (!service.existsById(UUID.fromString(id))) {
 //            return ResponseEntity.notFound().build();
@@ -137,15 +138,16 @@ public class ProductController implements GenericController{
         return ResponseEntity.ok(reviewsDto);
     }
 
-    @PreAuthorize("hasAnyRole('USER, MANAGER', 'ADMIN')")
     @DeleteMapping("/{id}/reviews/{reviewId}")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Object> deleteReview(@PathVariable("id") String id, @PathVariable("reviewId") String reviewId) {
+        System.out.println("TESTEEEE");
         service.deleteReview(id, reviewId);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PostMapping("/{id}/images")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> addImage(@PathVariable("id") String id, @RequestBody @Valid ProductImageDTO dto) {
 //        return service.findById(UUID.fromString(id))
 //                .map(product -> {
@@ -159,8 +161,8 @@ public class ProductController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @DeleteMapping("/{id}/images/{imageId}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> removeImage(@PathVariable("id") String id, @PathVariable("imageId") String imageId) {
 //        return service.findById(UUID.fromString(id))
 //                .map(product -> {

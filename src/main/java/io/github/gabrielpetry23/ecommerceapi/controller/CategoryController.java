@@ -1,8 +1,11 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CategoryMapper;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ public class CategoryController {
 
     private final CategoryService service;
     private final CategoryMapper mapper;
+    private final ProductMapper productMapper;
 
 
 //    CATEGORIAS
@@ -41,9 +45,9 @@ public class CategoryController {
 
     @GetMapping
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<CategoryResponseDTO>> listAll() {
+    public ResponseEntity<List<CategoryDTO>> listAll() {
         var categories = service.findAll();
-        List<CategoryResponseDTO> categoriesDtos = categories.stream()
+        List<CategoryDTO> categoriesDtos = categories.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(categoriesDtos);
@@ -51,10 +55,17 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable("id") String id) {
+    public ResponseEntity<CategoryDTO> findById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(category -> ResponseEntity.ok(mapper.toDTO(category)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/products")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<ProductResponseDTO>> findProductsByCategory(@PathVariable("id") String id) {
+        List<ProductResponseDTO> productsDTOs = service.findAllProductsDTOByCategoryId(UUID.fromString(id));
+        return ResponseEntity.ok(productsDTOs);
     }
 
     @PutMapping("/{id}")

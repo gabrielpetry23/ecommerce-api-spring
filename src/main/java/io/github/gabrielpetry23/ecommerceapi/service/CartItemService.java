@@ -9,6 +9,7 @@ import io.github.gabrielpetry23.ecommerceapi.repository.CartItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public class CartItemService {
         cartItem.setProduct(product);
         cartItem.setQuantity(dto.quantity());
         cartItem.setCart(cart);
+        cartItem.setTotal(calculateTotalPrice(cartItem));
         repository.save(cartItem);
         return cartItem;
     }
@@ -38,10 +40,15 @@ public class CartItemService {
 
     public void updateCartItemQuantity(CartItem cartItem, CartItemRequestDTO dto) {
         cartItem.setQuantity(dto.quantity());
+        cartItem.setTotal(calculateTotalPrice(cartItem));
         repository.save(cartItem);
     }
 
     public void delete(CartItem cartItem) {
         repository.delete(cartItem);
+    }
+
+    public BigDecimal calculateTotalPrice(CartItem cartItem) {
+        return cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
     }
 }

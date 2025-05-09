@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -29,5 +30,7 @@ public class ProductReview {
 
     private Integer rating;
     private String comment;
+
+    @CreatedDate
     private LocalDateTime createdAt;
 }

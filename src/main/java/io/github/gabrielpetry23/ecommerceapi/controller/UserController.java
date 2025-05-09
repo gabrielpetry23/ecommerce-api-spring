@@ -34,6 +34,7 @@ public class UserController implements GenericController{
 //========
 //    POST   /users                           Criar um novo usuário                         [Público]
 //    GET    /users/{id}                      Obter um usuário específico                   [USER (próprio), ADMIN, MANAGER]
+//    GET    /users                            Listar todos os usuários                      [ADMIN, MANAGER]
 //    PUT    /users/{id}                      Atualizar um usuário                          [USER (próprio), ADMIN, MANAGER]
 //    DELETE /users/{id}                      Excluir um usuário                            [ADMIN, MANAGER]
 //    POST   /login                           Login                                         [Público]
@@ -73,7 +74,7 @@ public class UserController implements GenericController{
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody @Valid UserUpdateDTO dto) {
+    public ResponseEntity<Object> update(@PathVariable("id") String id, @RequestBody UserUpdateDTO dto) {
         service.update(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
 
@@ -110,8 +111,8 @@ public class UserController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<List<AddressDTO>> getAddresses(@PathVariable("userId") String userId) {
 //
 //        if (service.findById(UUID.fromString(userId)).isEmpty()) {
@@ -126,8 +127,8 @@ public class UserController implements GenericController{
         return ResponseEntity.ok(addressDTOs);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/addresses/{addressId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<AddressDTO> getAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
 //
 //        if (service.findById(UUID.fromString(userId)).isEmpty()) {
@@ -140,8 +141,8 @@ public class UserController implements GenericController{
         return ResponseEntity.ok(addressDTO);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @PutMapping("/{userId}/addresses/{addressId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Object> updateAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId, @RequestBody AddressDTO dto) {
 
 //        if (service.findById(UUID.fromString(userId)).isEmpty()) {
@@ -159,8 +160,8 @@ public class UserController implements GenericController{
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @DeleteMapping("/{userId}/addresses/{addressId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Object> deleteAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
 //        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
 //        addressService.deleteAddress(UUID.fromString(userId), UUID.fromString(addressId));
@@ -193,8 +194,8 @@ public class UserController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<List<PaymentMethodResponseDTO>> getPaymentMethods(@PathVariable("userId") String userId) {
 //        if(service.findById(UUID.fromString(userId)).isEmpty()) {
 //            return ResponseEntity.notFound().build();
@@ -207,8 +208,8 @@ public class UserController implements GenericController{
         return ResponseEntity.ok(paymentMethodDTOs);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/payment-methods/{paymentMethodId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<PaymentMethodResponseDTO> getPaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId) {
 //        service.validateCurrentUserAccessOrAdmin(UUID.fromString(userId));
 //        PaymentMethodResponseDTO paymentMethodDTO = paymentMethodService.findPaymentMethodDTOByUserIdAndPaymentMethodId(UUID.fromString(userId), UUID.fromString(paymentMethodId));
@@ -217,15 +218,15 @@ public class UserController implements GenericController{
         return ResponseEntity.ok(paymentMethodDTO);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @PutMapping("/{userId}/payment-methods/{paymentMethodId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Object> updatePaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId, @RequestBody PaymentMethodRequestDTO dto) {
         service.updatePaymentMethod(userId, paymentMethodId, dto);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @DeleteMapping("/{userId}/payment-methods/{paymentMethodId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Object> deletePaymentMethod(@PathVariable("userId") String userId, @PathVariable("paymentMethodId") String paymentMethodId) {
         service.deletePaymentMethod(userId, paymentMethodId);
         return ResponseEntity.noContent().build();
@@ -233,8 +234,8 @@ public class UserController implements GenericController{
 
     //    GET    /users/{userId}/cart             Obter carrinho de um usuário                  [USER (próprio), ADMIN, MANAGER]
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     @GetMapping("/{userId}/cart")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<CartResponseDTO> getCart(@PathVariable("userId") String userId) {
 //        if (service.findById(UUID.fromString(userId)).isEmpty()) {
 //            return ResponseEntity.notFound().build();

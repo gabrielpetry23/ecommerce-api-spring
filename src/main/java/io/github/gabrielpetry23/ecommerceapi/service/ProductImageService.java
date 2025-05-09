@@ -15,13 +15,12 @@ import java.util.UUID;
 public class ProductImageService {
 
     private final ProductImageRepository repository;
-    private final ProductService productService;
 
     public ProductImage createImage(Product product, ProductImageDTO imageDto) {
         ProductImage image = new ProductImage();
         if (imageDto.isMain()) {
             image.setMain(true);
-            productService.setMainImageFalse(product);
+//            productService.setMainImageFalse(product);
         }
         image.setImageUrl(imageDto.imageUrl());
         image.setProduct(product);

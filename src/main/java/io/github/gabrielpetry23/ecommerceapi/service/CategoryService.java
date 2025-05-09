@@ -1,5 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import aj.org.objectweb.asm.commons.Remapper;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
@@ -19,6 +22,7 @@ public class CategoryService {
 
     private final CategoryRepository repository;
     private final CategoryValidator validator;
+    private final ProductMapper productMapper;
 
     public Category save(Category category) {
         validator.validateNewCategory(category);
@@ -55,5 +59,15 @@ public class CategoryService {
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
         repository.delete(category);
+    }
+
+    public List<ProductResponseDTO> findAllProductsDTOByCategoryId(UUID id) {
+        Category category = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        return category.getProducts()
+                .stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 }

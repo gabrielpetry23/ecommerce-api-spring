@@ -7,6 +7,7 @@ import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Cart;
 import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
+import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.CartRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -30,6 +32,11 @@ public class CartService {
     private CartMapper mapper;
 
     public Cart createCart() {
+
+        if (repository.findByUserId(securityService.getCurrentUser().getId()).isPresent()) {
+            throw new IllegalArgumentException("User already has a cart.");
+        }
+
         Cart cart = new Cart();
         cart.setUser(securityService.getCurrentUser());
         cart.setItems(new ArrayList<>());
@@ -57,20 +64,44 @@ public class CartService {
     }
 
     public CartItem addItem(UUID cartId, CartItemRequestDTO dto) {
-        Cart cart = repository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+//        Cart cart = repository.findById(cartId)
+//                .orElseGet(() -> {
+//                    Cart newCart = createCart();
+//                    validator.validateCurrentUserAccess(newCart.getUser().getId());
+//                    return newCart;
+//                });
+//
+//        CartItem cartItem = cartItemService.createCartItem(cart, dto);
+//        cart.getItems().add(cartItem);
+//        repository.save(cart);
+//        return cartItem;
+        Cart cart = (cartId != null) ? repository.findById(cartId).orElse(null) : null;
 
-        validator.validateCurrentUserAccess(cart.getUser().getId());
+        if (cart == null) {
+
+            User currentUser = securityService.getCurrentUser();
+
+            cart = repository.findByUserId(currentUser.getId())
+                    .orElseGet(() -> createCartForUser(currentUser));
+        } else {
+            validator.validateCurrentUserAccess(cart.getUser().getId());
+        }
 
         CartItem cartItem = cartItemService.createCartItem(cart, dto);
-
         cart.getItems().add(cartItem);
         repository.save(cart);
         return cartItem;
     }
 
+    private Cart createCartForUser(User user) {
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setItems(new ArrayList<>());
+        return repository.save(cart);
+    }
+
     public void updateItemQuantity(UUID cartId, UUID itemId, CartItemRequestDTO dto) {
-        CartItem cartItem = cartItemService.findByIdAndCartId(cartId, itemId)
+        CartItem cartItem = cartItemService.findByIdAndCartId(itemId, cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 
         validator.validateCurrentUserAccess(cartItem.getCart().getUser().getId());
@@ -78,6 +109,7 @@ public class CartService {
         cartItemService.updateCartItemQuantity(cartItem, dto);
     }
 
+    @Transactional
     public void deleteById(UUID id) {
         Cart cart = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 //        validator.validateCurrentUserAccess(cart.getUser().getId());
@@ -88,7 +120,7 @@ public class CartService {
         Cart cart = repository.findById(cartId).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         validator.validateCurrentUserAccess(cart.getUser().getId());
 
-        CartItem cartItem = cartItemService.findByIdAndCartId(cartId, itemId)
+        CartItem cartItem = cartItemService.findByIdAndCartId(itemId, cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
 
         cart.getItems().remove(cartItem);

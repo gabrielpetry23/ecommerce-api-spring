@@ -35,8 +35,9 @@ public class ResourceServerConfiguration {
 
                 .authorizeHttpRequests(authorize -> {
                     authorize.requestMatchers("/login/**").permitAll();
-                    authorize.requestMatchers(HttpMethod.POST, "/users/**").permitAll();
-                    authorize.requestMatchers(HttpMethod.POST, "/clients/**").permitAll();
+                    authorize.requestMatchers(HttpMethod.GET, "/categories/**").permitAll();
+                    authorize.requestMatchers(HttpMethod.GET, "/products/**").permitAll();
+                    authorize.requestMatchers(HttpMethod.POST, "/users").permitAll();
 
                     authorize.anyRequest().authenticated();
                 })

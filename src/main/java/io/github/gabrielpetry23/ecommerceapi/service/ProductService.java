@@ -1,9 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductImageDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductReviewResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductUpdateDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidFieldException;
 import io.github.gabrielpetry23.ecommerceapi.model.*;
@@ -23,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -120,6 +118,10 @@ public class ProductService {
             throw new InvalidFieldException("url", "Image URL cannot be null or empty");
         }
 
+        if (imageDto.isMain()) {
+            setMainImageFalse(product);
+        }
+
         ProductImage image = productImageService.createImage(product, imageDto);
         product.getImages().add(image);
         repository.save(product);
@@ -198,6 +200,7 @@ public class ProductService {
         ProductReview review = reviewService.findById(UUID.fromString(reviewId))
                 .orElseThrow(() -> new EntityNotFoundException("Review not found"));
 
+        System.out.println("ID USER REVIEWWWWW:" + review.getUser().getId());
         userValidator.validateCurrentUserAccessOrAdmin(review.getUser().getId());
 
         Product product = repository.findById(UUID.fromString(id))
