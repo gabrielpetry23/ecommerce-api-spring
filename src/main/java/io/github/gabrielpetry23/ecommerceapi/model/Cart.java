@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,10 @@ public class Cart {
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<CartItem> items = new ArrayList<>();
-    private List<CartItem> items;
+    private List<CartItem> items = new ArrayList<>();
+
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal total = BigDecimal.ZERO;
 
     @CreatedDate
     private LocalDateTime createdAt;

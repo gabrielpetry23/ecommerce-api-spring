@@ -43,7 +43,6 @@ public class CartController implements GenericController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<CartResponseDTO> getById(@PathVariable String id) {
-        service.validateCartOwnerIsCurrentUserOrAdminOrManager(UUID.fromString(id));
         return service.findById(UUID.fromString(id))
                 .map(cart -> {
                     var dto = mapper.toDTO(cart);
@@ -68,9 +67,8 @@ public class CartController implements GenericController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
-    public ResponseEntity<Object> deleteCart(@PathVariable String id) {
-        service.validateCartOwnerIsCurrentUserOrAdminOrManager(UUID.fromString(id));
-        service.deleteById(UUID.fromString(id));
+    public ResponseEntity<Object> emptyCart(@PathVariable String id) {
+        service.emptyCart(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 

@@ -105,4 +105,8 @@ public class PaymentMethodService {
     public Optional<PaymentMethod> findByIdAndUserId(UUID paymentId, UUID userId) {
         return repository.findByIdAndUserId(paymentId, userId);
     }
+
+    public Optional<PaymentMethod> findById(UUID id) {
+        return repository.findById(id);
+    }
 }

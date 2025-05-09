@@ -36,10 +36,6 @@ public class AddressService {
         return repository.save(address);
     }
 
-    public Optional<Address> findAddressByUserIdAndAddressId(UUID userId, UUID addressId) {
-        return repository.findByUserIdAndId(userId, addressId);
-    }
-
     public Address updateAddress(UUID userId, UUID addressID, AddressDTO dto) {
 
         Address address = repository.findByUserIdAndId(userId, addressID)
@@ -95,5 +91,9 @@ public class AddressService {
 
     public Optional<Address> findAddressByUserIdAndId(UUID userId, UUID addressId) {
         return repository.findByUserIdAndId(userId, addressId);
+    }
+
+    public Optional<Address> findById(UUID id) {
+        return repository.findById(id);
     }
 }

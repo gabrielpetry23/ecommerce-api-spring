@@ -41,12 +41,11 @@ public class ProductController implements GenericController{
 
     private final ProductService service;
     private final ProductMapper mapper;
-    private final CategoryValidator categoryValidator;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> create(@RequestBody @Valid ProductRequestDTO dto) {
-        categoryValidator.validateExistingCategoryId(dto.categoryId());
+        service.validateExistingCategoryId(dto.categoryId());
         Product product = mapper.toEntity(dto);
         service.save(product);
         URI location = generateHeaderLocation(product.getId());

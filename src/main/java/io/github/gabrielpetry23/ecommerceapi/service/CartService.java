@@ -17,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +41,6 @@ public class CartService {
 
         Cart cart = new Cart();
         cart.setUser(securityService.getCurrentUser());
-        cart.setItems(new ArrayList<>());
         return repository.save(cart);
     }
 
@@ -52,46 +52,22 @@ public class CartService {
     }
 
     public Optional<Cart> findById(UUID id) {
-        return repository.findById(id);
-    }
-
-    public Optional<Cart> findByUserId(UUID userId) {
-        return repository.findByUserId(userId);
-    }
-
-
-    public void validateCartOwnerIsCurrentUserOrAdminOrManager(UUID id) {
-        Cart cart = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+        Cart cart = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         validator.validateCurrentUserAccessOrAdmin(cart.getUser().getId());
+        return Optional.of(cart);
     }
 
     @Transactional
     public CartItem addItem(UUID cartId, CartItemRequestDTO dto) {
-//        Cart cart = repository.findById(cartId)
-//                .orElseGet(() -> {
-//                    Cart newCart = createCart();
-//                    validator.validateCurrentUserAccess(newCart.getUser().getId());
-//                    return newCart;
-//                });
-//
-//        CartItem cartItem = cartItemService.createCartItem(cart, dto);
-//        cart.getItems().add(cartItem);
-//        repository.save(cart);
-//        return cartItem;
-        Cart cart = (cartId != null) ? repository.findById(cartId).orElse(null) : null;
+        Cart cart = repository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
-        if (cart == null) {
-
-            User currentUser = securityService.getCurrentUser();
-
-            cart = repository.findByUserId(currentUser.getId())
-                    .orElseGet(() -> createCartForUser(currentUser));
-        } else {
-            validator.validateCurrentUserAccess(cart.getUser().getId());
-        }
+        validator.validateCurrentUserAccess(cart.getUser().getId());
 
         CartItem cartItem = cartItemService.createCartItem(cart, dto);
         cart.getItems().add(cartItem);
+        cart.setTotal(calculateTotalPrice(cart));
         repository.save(cart);
         return cartItem;
     }
@@ -112,13 +88,20 @@ public class CartService {
         validator.validateCurrentUserAccess(cartItem.getCart().getUser().getId());
 
         cartItemService.updateCartItemQuantity(cartItem, dto);
+
+        Cart cart = repository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+
+        cart.setTotal(calculateTotalPrice(cart));
+        repository.save(cart);
     }
 
     @Transactional
-    public void deleteById(UUID id) {
+    public void emptyCart(UUID id) {
         Cart cart = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
-//        validator.validateCurrentUserAccess(cart.getUser().getId());
-        repository.delete(cart);
+        validator.validateCurrentUserAccessOrAdmin(cart.getUser().getId());
+        cart.getItems().clear();
+        repository.save(cart);
     }
 
     @Transactional
@@ -139,5 +122,11 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
         return mapper.toDTO(cart);
+    }
+
+    private BigDecimal calculateTotalPrice(Cart cart) {
+        return cart.getItems().stream()
+                .map(CartItem::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

@@ -30,8 +30,7 @@ public class Order {
     private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<OrderItem> items = new ArrayList<>();
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal total;
@@ -39,6 +38,14 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id")
+    private Address deliveryAddress;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod paymentMethod;
 
     @CreatedDate
     private LocalDateTime createdAt;
