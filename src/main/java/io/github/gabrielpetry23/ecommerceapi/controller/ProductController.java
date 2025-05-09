@@ -71,12 +71,13 @@ public class ProductController implements GenericController{
 
     @GetMapping
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<ProductResponseDTO>> listAll() {
-        var products = service.listAll();
-        var dtos = products.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+    public ResponseEntity<Page<ProductResponseDTO>> listAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<Product> productsPage = service.listAll(page, size);
+        Page<ProductResponseDTO> dtoPage = productsPage.map(mapper::toDTO);
+        return ResponseEntity.ok(dtoPage);
     }
 
     @GetMapping("/search")

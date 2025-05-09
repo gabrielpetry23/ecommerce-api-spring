@@ -9,6 +9,9 @@ import io.github.gabrielpetry23.ecommerceapi.repository.UserRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +26,11 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder encoder;
-    private final SecurityService securityService;
     private final UserValidator validator;
     private final AddressService addresService;
     private final PaymentMethodService paymentMethodService;
     private final CartService cartService;
+    private final OrderService orderService;
 
     @Transactional
     public void save(User user) {
@@ -50,8 +53,9 @@ public class UserService {
         repository.delete(user);
     }
 
-    public List<User> findAll() {
-        return repository.findAll();
+    public Page<User> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAll(pageable);
     }
 
     @Transactional
@@ -210,5 +214,15 @@ public class UserService {
         validator.validateCurrentUserAccessOrAdmin(user.getId());
 
         return addresService.findAddressDTOByUserIdAndId(UUID.fromString(userId), UUID.fromString(addressId));
+    }
+
+    public Page<OrderResponseDTO> findAllOrdersDTOByUserId(String userId, int page, int size) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        Pageable pageable = PageRequest.of(page, size);
+        return orderService.findAllOrdersDTOByUserId(UUID.fromString(userId), pageable);
     }
 }

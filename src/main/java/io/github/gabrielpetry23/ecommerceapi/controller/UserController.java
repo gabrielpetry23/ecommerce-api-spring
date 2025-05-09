@@ -6,6 +6,7 @@ import io.github.gabrielpetry23.ecommerceapi.model.*;
 import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -56,11 +57,12 @@ public class UserController implements GenericController{
 
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public ResponseEntity<List<UserDetailsDTO>> getAll() {
-        List<User> users = service.findAll();
-        List<UserDetailsDTO> dtos = users.stream()
-                .map(mapper::toDTO)
-                .toList();
+    public ResponseEntity<Page<UserDetailsDTO>> getAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<User> usersPage = service.findAll(page, size);
+        Page<UserDetailsDTO> dtos = usersPage.map(mapper::toDTO);
         return ResponseEntity.ok(dtos);
     }
 
@@ -239,5 +241,18 @@ public class UserController implements GenericController{
 //        return ResponseEntity.ok(cartDTO);
         CartResponseDTO cartDTO = service.findCartDTOByUserId(UUID.fromString(userId));
         return ResponseEntity.ok(cartDTO);
+    }
+
+    //    GET    /users/{userId}/orders           Obter pedidos de um usuário                    [USER (próprio), ADMIN, MANAGER]
+
+    @GetMapping("/{userId}/orders")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Page<OrderResponseDTO>> getOrders(
+            @PathVariable("userId") String userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<OrderResponseDTO> dtoPage = service.findAllOrdersDTOByUserId(userId, page, size);
+        return ResponseEntity.ok(dtoPage);
     }
 }

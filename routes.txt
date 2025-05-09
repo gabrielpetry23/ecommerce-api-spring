@@ -10,6 +10,7 @@ PRODUTOS
 ========
 POST   /products                        Criar um novo produto                         [ADMIN, MANAGER]
 GET    /products                        Listar todos os produtos                      [Público]
+GET    /products/search                  Pesquisar produtos                           [Público]
 GET    /products/{id}                   Obter um produto específico                   [Público]
 PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
 DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]

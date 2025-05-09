@@ -1,17 +1,21 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderRequestDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.OrderMapper;
+import io.github.gabrielpetry23.ecommerceapi.model.Cart;
+import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
 import io.github.gabrielpetry23.ecommerceapi.model.Order;
 import io.github.gabrielpetry23.ecommerceapi.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
@@ -19,22 +23,48 @@ import java.net.URI;
 public class OrderController implements GenericController{
 
     private final OrderService service;
-//    private final OrderMapper orderMapper;
+    private final OrderMapper mapper;
 
 //    PEDIDOS
 //=======
 //    POST   /orders                          Criar novo pedido a partir de um carrinho      [USER]
 //    GET    /orders                          Listar todos os pedidos                        [ADMIN, MANAGER]
 //    GET    /orders/{id}                     Obter um pedido específico                     [USER (próprio), ADMIN, MANAGER]
-//    GET    /users/{userId}/orders           Obter pedidos de um usuário                    [USER (próprio), ADMIN, MANAGER]
 //    PUT    /orders/{id}/status              Atualizar status de um pedido                  [ADMIN, MANAGER]
-//    POST   /orders/{id}/items               Adicionar item ao pedido                       [ADMIN, MANAGER]
-//    GET    /orders/{orderId}/items          Obter itens de um pedido                       [USER (próprio), ADMIN, MANAGER]
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequestDTO dto) {
         Order order = service.createOrder(dto);
         URI location = generateHeaderLocation(order.getId());
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Page<OrderResponseDTO>> listAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<Order> ordersPage = service.findAll(page, size);
+        Page<OrderResponseDTO> dtoPage = ordersPage.map(mapper::toDTO);
+        return ResponseEntity.ok(dtoPage);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<OrderResponseDTO> getById(@PathVariable String id) {
+        return service.findById(UUID.fromString(id))
+                .map(order -> {
+                    var dto = mapper.toDTO(order);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Object> updateStatus(@PathVariable String id, @RequestBody OrderStatusDTO dto) {
+        service.updateStatus(UUID.fromString(id), dto);
+        return ResponseEntity.noContent().build();
     }
 }

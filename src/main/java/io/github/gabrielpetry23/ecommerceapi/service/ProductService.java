@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,9 @@ public class ProductService {
         return repository.findById(id);
     }
 
-    public List<Product> listAll() {
-        return repository.findAll();
+    public Page<Product> listAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAll(pageable);
     }
 
     public Page<Product> search(String name, String categoryName, String description, BigDecimal price, BigDecimal maxPrice, BigDecimal minPrice, Integer stock, Integer page, Integer pageSize) {
