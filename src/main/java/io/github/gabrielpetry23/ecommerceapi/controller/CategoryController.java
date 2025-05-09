@@ -1,11 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.AddressDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CategoryMapper;
-import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
 import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +20,6 @@ public class CategoryController {
 
     private final CategoryService service;
     private final CategoryMapper mapper;
-    private final ProductMapper productMapper;
-
 
 //    CATEGORIAS
 //==========

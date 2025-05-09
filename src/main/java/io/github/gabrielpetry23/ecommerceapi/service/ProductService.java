@@ -15,12 +15,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class ProductService {
     private final ProductImageService productImageService;
     private final UserValidator userValidator;
 
+    @Transactional
     public Product save(Product product) {
         validator.validateNewProduct(product);
         User currentUser = securityService.getCurrentUser();
@@ -82,18 +83,7 @@ public class ProductService {
         return repository.findAll(specs, PageRequest.of(page, pageSize));
     }
 
-//    public ProductReview addReview(Product product, ProductReviewDTO reviewDTO) {
-//        if (product.getId() == null) {
-//            throw new IllegalArgumentException("Product must exist to add a review");
-//        }
-//
-//        ProductReview review = reviewService.createProductReviewForProduct(product, reviewDTO);
-//
-//        product.getReviews().add(review);
-//        repository.save(product);
-//        return review;
-//    }
-
+    @Transactional
     public ProductReview addReview(UUID productId, ProductReviewDTO reviewDto) {
         Product product = repository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
@@ -105,10 +95,7 @@ public class ProductService {
         return review;
     }
 
-    public List<ProductReview> findReviewsByProduct(Product product) {
-        return product.getReviews();
-    }
-
+    @Transactional
     public ProductImage addImage(UUID productId, ProductImageDTO imageDto) {
 
         Product product = repository.findById(productId)
@@ -128,31 +115,14 @@ public class ProductService {
         return image;
     }
 
-    public void removeImage(Product product, UUID imageId) {
-        if (product.getId() == null) {
-            throw new IllegalArgumentException("Product must exist to remove an image");
-        }
-
-        var image = product.getImages().stream()
-                .filter(img -> img.getId().equals(imageId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Image not found"));
-
-        product.getImages().remove(image);
-        repository.save(product);
-
-    }
-
-    public boolean existsById(UUID uuid) {
-        return repository.existsById(uuid);
-    }
-
+    @Transactional
     public void deleteById(UUID uuid) {
         Product product = repository.findById(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
         repository.delete(product);
     }
 
+    @Transactional
     public void updateProduct(UUID id, ProductUpdateDTO dto) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
@@ -175,6 +145,7 @@ public class ProductService {
         repository.save(product);
     }
 
+    @Transactional
     public void setMainImageFalse(Product product) {
         for (ProductImage image : product.getImages()) {
             if (image.isMain()) {
@@ -184,6 +155,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public void deleteImage(String id, String imageId) {
         Product product = repository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
@@ -196,11 +168,11 @@ public class ProductService {
         repository.save(product);
     }
 
+    @Transactional
     public void deleteReview(String id, String reviewId) {
         ProductReview review = reviewService.findById(UUID.fromString(reviewId))
                 .orElseThrow(() -> new EntityNotFoundException("Review not found"));
 
-        System.out.println("ID USER REVIEWWWWW:" + review.getUser().getId());
         userValidator.validateCurrentUserAccessOrAdmin(review.getUser().getId());
 
         Product product = repository.findById(UUID.fromString(id))
@@ -212,7 +184,7 @@ public class ProductService {
     }
 
     public List<ProductReviewResponseDTO> findAllProductReviewsDTOByProductId(String productId) {
-        Product product = repository.findById(UUID.fromString(productId))
+        repository.findById(UUID.fromString(productId))
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         return reviewService.findAllProductReviewsDTOByProductId(UUID.fromString(productId));

@@ -1,22 +1,18 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
-import aj.org.objectweb.asm.commons.Remapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Address;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
-import io.github.gabrielpetry23.ecommerceapi.repository.AddressRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.UserRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +29,7 @@ public class UserService {
     private final PaymentMethodService paymentMethodService;
     private final CartService cartService;
 
+    @Transactional
     public void save(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         repository.save(user);
@@ -46,6 +43,7 @@ public class UserService {
         return repository.findById(id);
     }
 
+    @Transactional
     public void deleteById(UUID id) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -56,6 +54,7 @@ public class UserService {
         return repository.findAll();
     }
 
+    @Transactional
     public Address addAddress(UUID userId, AddressDTO dto) {
 
         User user = repository.findById(userId)
@@ -74,6 +73,7 @@ public class UserService {
         validator.validateCurrentUserAccessOrAdmin(userId);
     }
 
+    @Transactional
     public PaymentMethod addPaymentMethod(UUID userId, PaymentMethodRequestDTO dto) {
 
         User user = repository.findById(userId)
@@ -88,10 +88,7 @@ public class UserService {
         return createdPaymentMethod;
     }
 
-    public boolean existsById(UUID userId) {
-        return repository.existsById(userId);
-    }
-
+    @Transactional
     public void update(UUID userId, UserUpdateDTO dto) {
         Optional<User> userOptional = findById(userId);
 
@@ -134,6 +131,7 @@ public class UserService {
         return cartService.findCartDTOByUserId(id);
     }
 
+    @Transactional
     public void deletePaymentMethod(String userId, String paymentMethodId) {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -148,6 +146,7 @@ public class UserService {
         paymentMethodService.delete(paymentMethod);
     }
 
+    @Transactional
     public void deleteAddress(String userId, String addressId) {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -162,6 +161,7 @@ public class UserService {
         addresService.delete(address);
     }
 
+    @Transactional
     public void updatePaymentMethod(String userId, String paymentMethodId, PaymentMethodRequestDTO dto) {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -173,6 +173,7 @@ public class UserService {
         repository.save(user);
     }
 
+    @Transactional
     public void updateAddress(String userId, String addressId, AddressDTO dto) {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

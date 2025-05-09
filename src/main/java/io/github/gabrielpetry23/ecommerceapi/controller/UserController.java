@@ -1,15 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
-import io.github.gabrielpetry23.ecommerceapi.controller.mappers.AddressMapper;
-import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CartMapper;
-import io.github.gabrielpetry23.ecommerceapi.controller.mappers.PaymentMethodMapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.UserMapper;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.*;
-import io.github.gabrielpetry23.ecommerceapi.service.AddressService;
-import io.github.gabrielpetry23.ecommerceapi.service.CartService;
-import io.github.gabrielpetry23.ecommerceapi.service.PaymentMethodService;
 import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController

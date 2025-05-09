@@ -12,7 +12,6 @@ import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

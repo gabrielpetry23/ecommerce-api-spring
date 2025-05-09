@@ -31,6 +31,7 @@ public class CartService {
     private final CartItemService cartItemService;
     private CartMapper mapper;
 
+    @Transactional
     public Cart createCart() {
 
         if (repository.findByUserId(securityService.getCurrentUser().getId()).isPresent()) {
@@ -58,11 +59,13 @@ public class CartService {
         return repository.findByUserId(userId);
     }
 
+
     public void validateCartOwnerIsCurrentUserOrAdminOrManager(UUID id) {
         Cart cart = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         validator.validateCurrentUserAccessOrAdmin(cart.getUser().getId());
     }
 
+    @Transactional
     public CartItem addItem(UUID cartId, CartItemRequestDTO dto) {
 //        Cart cart = repository.findById(cartId)
 //                .orElseGet(() -> {
@@ -93,6 +96,7 @@ public class CartService {
         return cartItem;
     }
 
+    @Transactional
     private Cart createCartForUser(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
@@ -100,6 +104,7 @@ public class CartService {
         return repository.save(cart);
     }
 
+    @Transactional
     public void updateItemQuantity(UUID cartId, UUID itemId, CartItemRequestDTO dto) {
         CartItem cartItem = cartItemService.findByIdAndCartId(itemId, cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
@@ -116,6 +121,7 @@ public class CartService {
         repository.delete(cart);
     }
 
+    @Transactional
     public void deleteItem(UUID cartId, UUID itemId) {
         Cart cart = repository.findById(cartId).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         validator.validateCurrentUserAccess(cart.getUser().getId());

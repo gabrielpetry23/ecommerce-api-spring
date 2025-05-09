@@ -2,12 +2,9 @@ package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CartItemRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CartResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CartMapper;
 import io.github.gabrielpetry23.ecommerceapi.model.Cart;
 import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
-import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import io.github.gabrielpetry23.ecommerceapi.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController

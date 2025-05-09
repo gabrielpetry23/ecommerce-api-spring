@@ -93,12 +93,6 @@ public class AddressService {
                 .orElse(null);
     }
 
-//    public void deleteAddress(UUID userId, UUID addressId) {
-//        Address address = repository.findByUserIdAndId(userId, addressId)
-//                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
-//        repository.delete(address);
-//    }
-
     public Optional<Address> findAddressByUserIdAndId(UUID userId, UUID addressId) {
         return repository.findByUserIdAndId(userId, addressId);
     }

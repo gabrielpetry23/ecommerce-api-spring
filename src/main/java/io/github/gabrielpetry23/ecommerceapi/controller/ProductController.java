@@ -2,13 +2,9 @@ package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.ProductMapper;
-import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
-import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductImage;
 import io.github.gabrielpetry23.ecommerceapi.model.ProductReview;
-import io.github.gabrielpetry23.ecommerceapi.service.CategoryService;
-import io.github.gabrielpetry23.ecommerceapi.service.ProductReviewService;
 import io.github.gabrielpetry23.ecommerceapi.service.ProductService;
 import io.github.gabrielpetry23.ecommerceapi.validators.CategoryValidator;
 import jakarta.validation.Valid;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
