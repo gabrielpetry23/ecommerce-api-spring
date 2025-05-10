@@ -23,21 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
-public class ProductController implements GenericController{
-
-//    PRODUTOS
-//========
-//    POST   /products                        Criar um novo produto                         [ADMIN, MANAGER]
-//    GET    /products                        Listar todos os produtos                      [Público]
-//    GET    /products/{id}                   Obter um produto específico                   [Público]
-//    PUT    /products/{id}                   Atualizar um produto                          [ADMIN, MANAGER]
-//    DELETE /products/{id}                   Excluir um produto                            [ADMIN, MANAGER]
-//    GET    /products/search                 Buscar produtos por nome/categoria            [Público]
-//    GET    /products/{id}/reviews           Obter as reviews de um produto                [Público]
-//    POST   /products/{id}/reviews           Criar uma review                              [USER]
-//    DELETE /products/{id}/reviews/{reviewId}  Excluir uma review                          [USER (próprio), ADMIN, MANAGER]
-//    POST   /products/{id}/images            Adicionar imagem ao produto                   [ADMIN, MANAGER]
-//    DELETE /products/{id}/images/{imageId}  Remover imagem do produto                     [ADMIN, MANAGER]
+public class ProductController implements GenericController {
 
     private final ProductService service;
     private final ProductMapper mapper;
@@ -54,7 +40,7 @@ public class ProductController implements GenericController{
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-        public ResponseEntity<ProductResponseDTO> getById(@PathVariable("id") String id) {
+    public ResponseEntity<ProductResponseDTO> getById(@PathVariable("id") String id) {
         return service.findById(UUID.fromString(id))
                 .map(product -> {
                     var dto = mapper.toDTO(product);
@@ -108,14 +94,6 @@ public class ProductController implements GenericController{
     @PostMapping("/{id}/reviews")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createReview(@PathVariable("id") String id, @RequestBody @Valid ProductReviewDTO dto) {
-//        return service.findById(UUID.fromString(id))
-//                .map(product -> {
-//                    ProductReview review = service.addReview(product, dto);
-//                    URI location = generateNestedHeaderLocation(product.getId(), "reviews", review.getId());
-//                    return ResponseEntity.created(location).build();
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-
         ProductReview review = service.addReview(UUID.fromString(id), dto);
         URI location = generateNestedHeaderLocation(review.getProduct().getId(), "reviews", review.getId());
         return ResponseEntity.created(location).build();
@@ -124,11 +102,6 @@ public class ProductController implements GenericController{
     @GetMapping("/{id}/reviews")
     @PreAuthorize("permitAll()")
     public ResponseEntity<List<ProductReviewResponseDTO>> getReviews(@PathVariable("id") String id) {
-//        if (!service.existsById(UUID.fromString(id))) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        List<ProductReviewResponseDTO> reviewsDto = reviewService.findAllProductReviewsDTOByProductId(UUID.fromString(id));
-//        return ResponseEntity.ok(reviewsDto);
         List<ProductReviewResponseDTO> reviewsDto = service.findAllProductReviewsDTOByProductId(id);
         return ResponseEntity.ok(reviewsDto);
     }
@@ -136,7 +109,6 @@ public class ProductController implements GenericController{
     @DeleteMapping("/{id}/reviews/{reviewId}")
     @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Object> deleteReview(@PathVariable("id") String id, @PathVariable("reviewId") String reviewId) {
-        System.out.println("TESTEEEE");
         service.deleteReview(id, reviewId);
         return ResponseEntity.noContent().build();
     }
@@ -144,13 +116,6 @@ public class ProductController implements GenericController{
     @PostMapping("/{id}/images")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> addImage(@PathVariable("id") String id, @RequestBody @Valid ProductImageDTO dto) {
-//        return service.findById(UUID.fromString(id))
-//                .map(product -> {
-//                    ProductImage img = service.addImage(product, dto);
-//                    URI location = generateNestedHeaderLocation(product.getId(), "images", img.getId());
-//                    return ResponseEntity.created(location).build();
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
         ProductImage image = service.addImage(UUID.fromString(id), dto);
         URI location = generateNestedHeaderLocation(image.getProduct().getId(), "images", image.getId());
         return ResponseEntity.created(location).build();
@@ -159,12 +124,6 @@ public class ProductController implements GenericController{
     @DeleteMapping("/{id}/images/{imageId}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Object> removeImage(@PathVariable("id") String id, @PathVariable("imageId") String imageId) {
-//        return service.findById(UUID.fromString(id))
-//                .map(product -> {
-//                    service.removeImage(product, UUID.fromString(imageId));
-//                    return ResponseEntity.noContent().build();
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
         service.deleteImage(id, imageId);
         return ResponseEntity.noContent().build();
     }

@@ -20,7 +20,6 @@ public class ProductImageService {
         ProductImage image = new ProductImage();
         if (imageDto.isMain()) {
             image.setMain(true);
-//            productService.setMainImageFalse(product);
         }
         image.setImageUrl(imageDto.imageUrl());
         image.setProduct(product);

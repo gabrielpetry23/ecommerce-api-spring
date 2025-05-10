@@ -39,7 +39,6 @@ public class PaymentMethodService {
     }
 
     public List<PaymentMethod> findAllPaymentMethodesByUserId(UUID userId) {
-//        return repository.findPaymentMethodByUserId(userId);
         return repository.findAllByUserId(userId);
     }
 
@@ -80,12 +79,6 @@ public class PaymentMethodService {
     }
 
     public void delete(PaymentMethod paymentMethod) {
-        repository.delete(paymentMethod);
-    }
-
-    public void deletePaymentMethod(UUID userId, UUID paymentMethodId) {
-        PaymentMethod paymentMethod = repository.findByIdAndUserId(paymentMethodId, userId)
-                .orElseThrow(() -> new EntityNotFoundException("PaymentMethod not found"));
         repository.delete(paymentMethod);
     }
 

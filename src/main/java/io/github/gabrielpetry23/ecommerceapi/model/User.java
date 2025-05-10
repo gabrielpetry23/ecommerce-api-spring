@@ -48,11 +48,9 @@ public class User {
     private List<ProductReview> reviews;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OneToMany(mappedBy = "user")
     private List<Address> addresses;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OneToMany(mappedBy = "user")
     private List<PaymentMethod> paymentMethods;
 }
 

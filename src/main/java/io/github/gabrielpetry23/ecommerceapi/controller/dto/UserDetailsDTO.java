@@ -9,7 +9,7 @@ public record UserDetailsDTO(
     String email,
     String password,
     String role,
-    Cart cart,
+    CartResponseDTO cart,
     List<OrderResponseDTO> orders,
     List<ProductReviewResponseDTO> reviews,
     List<AddressDTO> addresses,

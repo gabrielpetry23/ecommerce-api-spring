@@ -26,7 +26,7 @@ public class JwtCustomAuthenticationFilter extends OncePerRequestFilter {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(shouldConvert(authentication)) {
+        if (shouldConvert(authentication)) {
             String login = authentication.getName();
             User user = userService.findByEmail(login);
             if (user != null) {

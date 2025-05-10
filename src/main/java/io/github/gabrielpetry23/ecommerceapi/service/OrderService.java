@@ -73,7 +73,6 @@ public class OrderService {
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setPrice(cartItem.getTotal());
         order.getItems().add(orderItem);
-        // orderItem.repository(save) e fazer o get items c repo
         return orderItem;
     }
 

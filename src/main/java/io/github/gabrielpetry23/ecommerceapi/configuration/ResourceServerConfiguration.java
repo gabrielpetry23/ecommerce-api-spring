@@ -66,13 +66,13 @@ public class ResourceServerConfiguration {
 
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults() {
-        return new GrantedAuthorityDefaults(""); // Remove o prefixo "ROLE_" das authorities, pois por padrão o Spring Security adiciona esse prefixo
+        return new GrantedAuthorityDefaults("");
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthorityPrefix(""); // Remove o prefixo "SCOPE_" dos scopes, pois por padrão o Spring Security adiciona esse prefixo
+        authoritiesConverter.setAuthorityPrefix("");
 
         var converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);

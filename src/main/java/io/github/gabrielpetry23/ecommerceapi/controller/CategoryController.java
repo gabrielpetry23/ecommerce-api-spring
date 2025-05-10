@@ -21,15 +21,6 @@ public class CategoryController {
     private final CategoryService service;
     private final CategoryMapper mapper;
 
-//    CATEGORIAS
-//==========
-//    GET    /categories                      Listar todas as categorias                    [Público]
-//    GET    /categories/{id}                 Obter uma categoria específica                [Público]
-//   GET    /categories/{id}/products         Listar produtos de uma categoria              [Público]
-//    POST   /categories                      Criar uma categoria                           [ADMIN, MANAGER]
-//    PUT    /categories/{id}                 Atualizar uma categoria                       [ADMIN, MANAGER]
-//    DELETE /categories/{id}                 Excluir uma categoria                         [ADMIN, MANAGER]
-
     @PostMapping
     @PreAuthorize("permitAll()")
     public ResponseEntity<Object> save(@RequestBody CategoryDTO categoryDTO) {

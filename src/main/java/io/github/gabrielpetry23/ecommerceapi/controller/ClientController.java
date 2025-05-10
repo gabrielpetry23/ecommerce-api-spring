@@ -16,13 +16,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClientController {
 
-//    CLIENTES (OAuth)
-//================
-//    POST   /clients                         Criar um novo Client                           [ADMIN, MANAGER]
-//    GET    /clients/{id}                    Obter um Client específico                     [ADMIN, MANAGER]
-//    PUT    /clients/{id}                    Atualizar um Client                            [ADMIN, MANAGER]
-//    DELETE /clients/{id}                    Excluir um Client                              [ADMIN, MANAGER]
-
     private final ClientService service;
     private final ClientMapper mapper;
 

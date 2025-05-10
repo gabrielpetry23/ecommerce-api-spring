@@ -4,13 +4,13 @@ import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CategoryResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
-//    CategoryResponseDTO toDTO(Category category);
-
     CategoryDTO toDTO(Category category);
 
+    @Mapping(target = "products", ignore = true)
     Category toEntity(CategoryDTO categoryDTO);
 }

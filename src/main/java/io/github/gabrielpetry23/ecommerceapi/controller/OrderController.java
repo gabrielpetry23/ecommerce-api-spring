@@ -20,17 +20,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
-public class OrderController implements GenericController{
+public class OrderController implements GenericController {
 
     private final OrderService service;
     private final OrderMapper mapper;
-
-//    PEDIDOS
-//=======
-//    POST   /orders                          Criar novo pedido a partir de um carrinho      [USER]
-//    GET    /orders                          Listar todos os pedidos                        [ADMIN, MANAGER]
-//    GET    /orders/{id}                     Obter um pedido específico                     [USER (próprio), ADMIN, MANAGER]
-//    PUT    /orders/{id}/status              Atualizar status de um pedido                  [ADMIN, MANAGER]
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
