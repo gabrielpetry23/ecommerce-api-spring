@@ -47,6 +47,8 @@ GET    /users/{userId}/orders           Obter pedidos de um usuário            
 PUT    /orders/{id}/status              Atualizar status de um pedido                  [ADMIN, MANAGER]
 POST   /orders/{id}/items               Adicionar item ao pedido                       [ADMIN, MANAGER]
 GET    /orders/{orderId}/items          Obter itens de um pedido                       [USER (próprio), ADMIN, MANAGER]
+GET    /orders/{orderId}/tracking       Obter informações de rastreamento de um pedido [USER (próprio), ADMIN, MANAGER]
+POST   /orders/{orderId}/coupon         Aplicar cupom de desconto a um pedido          [USER (próprio)]
 
 CLIENTES (OAuth)
 ================
