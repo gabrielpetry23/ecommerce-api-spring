@@ -47,6 +47,9 @@ public class Order {
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TrackingDetails trackingDetails;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

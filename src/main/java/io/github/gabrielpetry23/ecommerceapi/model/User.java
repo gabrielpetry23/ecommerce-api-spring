@@ -53,7 +53,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentMethod> paymentMethods;
 
-    @Version
-    private Long version = 0L;
+//    @Version
+//    private Long version = 0L;
 }
 

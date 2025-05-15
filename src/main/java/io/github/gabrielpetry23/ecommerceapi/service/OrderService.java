@@ -3,11 +3,13 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderStatusDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.TrackingResponseDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.OrderMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.OperationNotAllowedException;
 import io.github.gabrielpetry23.ecommerceapi.model.*;
 import io.github.gabrielpetry23.ecommerceapi.repository.OrderRepository;
+import io.github.gabrielpetry23.ecommerceapi.repository.TrackingDetailsRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class OrderService {
     private final AddressService addressService;
     private final PaymentMethodService paymentMethodService;
     private final OrderMapper mapper;
+    private final TrackingDetailsRepository trackingDetailsRepository;
 
     @Transactional
     public Order createOrder(OrderRequestDTO dto) {
@@ -54,12 +57,24 @@ public class OrderService {
         Address addressFound = addressService.findById(UUID.fromString(dto.deliveryAddressId()))
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
+        if (!addressFound.getUser().getId().equals(currentUser.getId())) {
+            throw new OperationNotAllowedException("Address does not belong to the user");
+        }
+
         order.setDeliveryAddress(addressFound);
 
         PaymentMethod paymentMethodFound = paymentMethodService.findById(UUID.fromString(dto.paymentMethodId()))
                 .orElseThrow(() -> new EntityNotFoundException("Payment method not found"));
 
+        if (!paymentMethodFound.getUser().getId().equals(currentUser.getId())) {
+            throw new OperationNotAllowedException("Payment method does not belong to the user");
+        }
+
         order.setPaymentMethod(paymentMethodFound);
+
+        order.setTrackingDetails(null);
+
+        cartService.emptyCart(cart.getId());
 
         repository.save(order);
 
@@ -118,6 +133,19 @@ public class OrderService {
 
         order.setStatus(newStatus);
 
+        if (newStatus == OrderStatus.PAID && order.getTrackingDetails() == null) {
+            TrackingDetails trackingDetails = new TrackingDetails();
+            trackingDetails.setOrder(order);
+            trackingDetails.setTrackingCode("ECO" + UUID.randomUUID().toString().substring(0, 10).toUpperCase());
+            trackingDetails.setCarrier("Simulated Carrier");
+            trackingDetails.setStatus(simulateTrackingStatus(order.getStatus()));
+            if (order.getCreatedAt() != null) {
+                trackingDetails.setEstimatedDelivery(order.getCreatedAt().toLocalDate().plusDays(5));
+            }
+            trackingDetailsRepository.save(trackingDetails);
+            order.setTrackingDetails(trackingDetails);
+        }
+
         repository.save(order);
     }
 
@@ -132,6 +160,46 @@ public class OrderService {
 
         if (currentOrder.getStatus() == OrderStatus.PAID && newStatus == OrderStatus.PENDING) {
             throw new OperationNotAllowedException("Cannot revert order to PENDING once it is PAID.");
+        }
+    }
+
+    public TrackingResponseDTO getTrackingDetailsDTO(String orderId) {
+        Order order = repository.findById(UUID.fromString(orderId))
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        if (order.getTrackingDetails() == null) {
+            throw new OperationNotAllowedException("Tracking details not available yet. Only available after payment.");
+        }
+
+        TrackingDetails trackingDetails = trackingDetailsRepository.findById(order.getTrackingDetails().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Tracking details not found"));
+
+        TrackingResponseDTO dto = new TrackingResponseDTO(
+                trackingDetails.getTrackingCode(),
+                trackingDetails.getCarrier(),
+                trackingDetails.getStatus(),
+                trackingDetails.getEstimatedDelivery()
+        );
+
+        return dto;
+    }
+
+    private String simulateTrackingStatus(OrderStatus orderStatus) {
+        switch (orderStatus) {
+            case PENDING:
+                return "Processing Order";
+            case PAID:
+                return "Order Confirmed";
+            case IN_PREPARATION:
+                return "Preparing for Shipment";
+            case IN_DELIVERY:
+                return "In Transit";
+            case DELIVERED:
+                return "Delivered";
+            case CANCELLED:
+                return "Cancelled";
+            default:
+                return "Status Unavailable";
         }
     }
 }

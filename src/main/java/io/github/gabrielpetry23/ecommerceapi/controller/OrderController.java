@@ -68,7 +68,8 @@ public class OrderController implements GenericController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Order found"),
             @ApiResponse(responseCode = "400", description = "Invalid order ID format"),
-            @ApiResponse(responseCode = "404", description = "Order not found")
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
@@ -98,5 +99,22 @@ public class OrderController implements GenericController {
     ) {
         service.updateStatus(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get order tracking information", description = "Endpoint to retrieve the tracking information for a specific order. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tracking information retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid order ID format"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    @GetMapping("/{id}/tracking")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<TrackingResponseDTO> getTrackingInfo(
+            @Parameter(name = "id", in = ParameterIn.PATH, description = "ID of the order to retrieve tracking information for", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable String id
+    ) {
+        TrackingResponseDTO trackingInfo = service.getTrackingDetailsDTO(id);
+        return ResponseEntity.ok(trackingInfo);
     }
 }

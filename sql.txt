@@ -83,6 +83,18 @@ CREATE TABLE orders (
 
 );
 
+CREATE TABLE tracking_details (
+    id UUID NOT NULL PRIMARY KEY,
+    order_id UUID NOT NULL UNIQUE,
+    tracking_code VARCHAR(100) UNIQUE,
+    carrier VARCHAR(100),
+    status VARCHAR(100),
+    estimated_delivery DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_order_tracking FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
 -- ORDER ITEMS
 CREATE TABLE order_items (
     id UUID NOT NULL PRIMARY KEY,
