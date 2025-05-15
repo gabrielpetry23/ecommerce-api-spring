@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -116,5 +117,23 @@ public class OrderController implements GenericController {
     ) {
         TrackingResponseDTO trackingInfo = service.getTrackingDetailsDTO(id);
         return ResponseEntity.ok(trackingInfo);
+    }
+
+    @Operation(summary = "Apply a coupon to an order", description = "Endpoint to apply a coupon to an existing order. Requires USER role and the order belongs to the current user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Coupon applied successfully, order total updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data or coupon code"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PostMapping("/{id}/coupon")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<OrderResponseDTO> applyCoupon(
+            @Parameter(name = "id", in = ParameterIn.PATH, description = "ID of the order to apply the coupon to", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable String id,
+            @Valid @RequestBody ApplyCouponRequestDTO dto
+    ) {
+        Order updatedOrder = service.applyCoupon(id, dto);
+        return ResponseEntity.ok(mapper.toDTO(updatedOrder));
     }
 }

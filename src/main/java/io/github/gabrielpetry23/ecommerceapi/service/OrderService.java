@@ -1,9 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderRequestDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.OrderStatusDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.TrackingResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.OrderMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.OperationNotAllowedException;
@@ -12,6 +9,7 @@ import io.github.gabrielpetry23.ecommerceapi.repository.OrderRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.TrackingDetailsRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +35,7 @@ public class OrderService {
     private final PaymentMethodService paymentMethodService;
     private final OrderMapper mapper;
     private final TrackingDetailsRepository trackingDetailsRepository;
+    private final CouponService couponService;
 
     @Transactional
     public Order createOrder(OrderRequestDTO dto) {
@@ -73,6 +73,12 @@ public class OrderService {
         order.setPaymentMethod(paymentMethodFound);
 
         order.setTrackingDetails(null);
+
+        if (dto.couponCode() != null) {
+            Coupon coupon = couponService.validateCoupon(dto.couponCode());
+            order.setCoupon(coupon);
+            order.setTotal(calculateDiscountedTotal(order.getItems(), coupon));
+        }
 
         cartService.emptyCart(cart.getId());
 
@@ -201,5 +207,51 @@ public class OrderService {
             default:
                 return "Status Unavailable";
         }
+    }
+
+    public Order applyCoupon(String id, ApplyCouponRequestDTO dto) {
+        Order order = repository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OperationNotAllowedException("Cannot apply coupon to an order that is not pending.");
+        }
+
+        userValidator.validateCurrentUserAccess(order.getUser().getId());
+
+        Coupon coupon = couponService.validateCoupon(dto.couponCode());
+
+        if (order.getCoupon() != null) {
+            throw new OperationNotAllowedException("Coupon already applied to this order.");
+        }
+
+        order.setCoupon(coupon);
+        order.setTotal(calculateDiscountedTotal(order.getItems(), coupon));
+
+        repository.save(order);
+        return order;
+    }
+
+    private BigDecimal calculateDiscountedTotal(List<OrderItem> items, Coupon coupon) {
+        BigDecimal originalTotal = items.stream()
+                .map(OrderItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal discountedTotal = originalTotal;
+
+        if (coupon != null) {
+            if (coupon.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+                discountedTotal = discountedTotal.subtract(coupon.getDiscountAmount());
+            } else if (coupon.getDiscountPercentage().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal discountRate = coupon.getDiscountPercentage().divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal discount = originalTotal.multiply(discountRate);
+                discountedTotal = discountedTotal.subtract(discount);
+            }
+            if (discountedTotal.compareTo(BigDecimal.ZERO) < 0) {
+                discountedTotal = BigDecimal.ZERO;
+            }
+        }
+
+        return discountedTotal.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

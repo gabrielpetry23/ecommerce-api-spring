@@ -74,6 +74,12 @@ public class GlobalExceptionHandler {
         return new ResponseError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(InvalidCouponException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError handleInvalidCouponException(InvalidCouponException ex) {
+        return new ResponseError(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseError handleUnhandledError(RuntimeException ex) {
