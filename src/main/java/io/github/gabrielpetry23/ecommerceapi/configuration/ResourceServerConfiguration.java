@@ -51,18 +51,18 @@ public class ResourceServerConfiguration {
                 .build();
     }
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return web -> web.ignoring().requestMatchers
-//                ("/v3/api-docs/**",
-//                        "/v2/api-docs/**",
-//                        "/swagger-ui.html/**",
-//                        "/swagger-ui/**",
-//                        "/swagger-resources/**",
-//                        "/webjars/**",
-//                        "/actuator/**"
-//                );
-//    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers
+                ("/v3/api-docs/**",
+                        "/v2/api-docs/**",
+                        "/swagger-ui.html/**",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/webjars/**",
+                        "/actuator/**"
+                );
+    }
 
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults() {

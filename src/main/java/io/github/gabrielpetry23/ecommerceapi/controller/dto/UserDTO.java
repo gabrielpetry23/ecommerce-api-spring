@@ -16,7 +16,6 @@ public record UserDTO(
         @NotBlank(message = "required field")
         String password,
         //@ValidRole
-        String role,
-        List<AddressDTO> addresses
+        String role
 ) {
 }

@@ -10,7 +10,6 @@ import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.CategoryValidator;
 import io.github.gabrielpetry23.ecommerceapi.validators.ProductValidator;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -2,11 +2,16 @@ package io.github.gabrielpetry23.ecommerceapi.controller;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.*;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.OrderMapper;
-import io.github.gabrielpetry23.ecommerceapi.model.Cart;
-import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
 import io.github.gabrielpetry23.ecommerceapi.model.Order;
 import io.github.gabrielpetry23.ecommerceapi.service.OrderService;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +19,24 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+@Tag(name = "Order", description = "Endpoints for managing orders")
 public class OrderController implements GenericController {
 
     private final OrderService service;
     private final OrderMapper mapper;
 
+    @Operation(summary = "Create a new order", description = "Endpoint to create a new order. Requires USER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Order created successfully",
+                    headers = @Header(name = "Location", description = "URI of the created order", schema = @Schema(type = "string", format = "uri"))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequestDTO dto) {
@@ -33,10 +45,18 @@ public class OrderController implements GenericController {
         return ResponseEntity.created(location).build();
     }
 
+    @Operation(summary = "List all orders with pagination", description = "Endpoint to retrieve a paginated list of all orders. Requires ADMIN or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of orders retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Page<OrderResponseDTO>> listAll(
+            @Parameter(name = "page", in = ParameterIn.QUERY, description = "Page number (default: 0)", schema = @Schema(type = "integer", minimum = "0"))
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(name = "size", in = ParameterIn.QUERY, description = "Number of items per page (default: 10)", schema = @Schema(type = "integer", minimum = "1"))
             @RequestParam(defaultValue = "10") int size
     ) {
         Page<Order> ordersPage = service.findAll(page, size);
@@ -44,9 +64,18 @@ public class OrderController implements GenericController {
         return ResponseEntity.ok(dtoPage);
     }
 
+    @Operation(summary = "Get order by ID", description = "Endpoint to retrieve a specific order by its ID. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order found"),
+            @ApiResponse(responseCode = "400", description = "Invalid order ID format"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
-    public ResponseEntity<OrderResponseDTO> getById(@PathVariable String id) {
+    public ResponseEntity<OrderResponseDTO> getById(
+            @Parameter(name = "id", in = ParameterIn.PATH, description = "ID of the order to retrieve", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable String id
+    ) {
         return service.findById(UUID.fromString(id))
                 .map(order -> {
                     var dto = mapper.toDTO(order);
@@ -54,9 +83,19 @@ public class OrderController implements GenericController {
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Update order status", description = "Endpoint to update the status of an order. Requires ADMIN or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order status updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<Object> updateStatus(@PathVariable String id, @RequestBody OrderStatusDTO dto) {
+    public ResponseEntity<Object> updateStatus(
+            @Parameter(name = "id", in = ParameterIn.PATH, description = "ID of the order to update", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable String id, @RequestBody OrderStatusDTO dto
+    ) {
         service.updateStatus(UUID.fromString(id), dto);
         return ResponseEntity.noContent().build();
     }

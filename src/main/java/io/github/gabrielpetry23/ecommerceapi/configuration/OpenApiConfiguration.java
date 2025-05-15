@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Library API",
+                title = "E-commerce API",
                 version = "1.0",
-                description = "API for managing a library system",
+                description = "API for e-commerce",
                 contact = @Contact(
-                        name = "gabriel petry",
-                        email = "gab@gmail",
-                        url = "libraryapi.com.br"
+                        name = "Gabriel Petry",
+                        email = "gabriel.petry08@gmail.com",
+                        url = "eccomerceapi.com.br"
                 )
         ),
         security = {

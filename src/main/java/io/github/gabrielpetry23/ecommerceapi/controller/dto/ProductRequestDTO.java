@@ -26,8 +26,6 @@ public record ProductRequestDTO(
         Integer stock,
 
         @NotNull(message = "Category ID is required")
-        UUID categoryId,
-
-        List<ProductImage> images
+        UUID categoryId
 ) {
 }
