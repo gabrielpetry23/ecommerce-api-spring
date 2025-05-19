@@ -3,11 +3,15 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidCouponException;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Coupon;
+import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +20,36 @@ import java.util.UUID;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+    private final UserService userService;
+    private final NotificationService notificationService;
+
+    @Transactional
+    public Coupon createCoupon(Coupon coupon) {
+        couponRepository.save(coupon);
+        sendNotifications(coupon);
+        return coupon;
+    }
+
+    private void sendNotifications(Coupon coupon) {
+        if (coupon.getIsActive()) {
+            List<User> allUsers = userService.findAll(); // Busca todos os usuários
+            String content;
+
+            if (coupon.getDiscountPercentage().compareTo(BigDecimal.ZERO) > 0) {
+                content = String.format("Novo cupom disponível! Use '%s' para %.2f%% de desconto!",
+                        coupon.getCode(), coupon.getDiscountPercentage());
+            } else if (coupon.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+                content = String.format("Novo cupom disponível! Use '%s' para R$ %.2f de desconto!",
+                        coupon.getCode(), coupon.getDiscountAmount());
+            } else {
+                content = String.format("Novo cupom '%s' disponível! Confira nossas ofertas!", coupon.getCode());
+            }
+
+            for (User user : allUsers) {
+                notificationService.sendAndPersistNotification(user, "NEW_COUPON", content);
+            }
+        }
+    }
 
     public Coupon findById(UUID id) {
         return couponRepository.findById(id)

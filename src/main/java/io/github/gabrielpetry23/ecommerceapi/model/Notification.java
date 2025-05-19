@@ -2,45 +2,39 @@ package io.github.gabrielpetry23.ecommerceapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "notifications")
 @Data
 @EntityListeners(AuditingEntityListener.class)
-@ToString(exclude = {"user", "items"})
-public class Cart {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItem> items = new ArrayList<>();
+    @Column(nullable = false, length = 100)
+    private String type; // Ex: "ORDER_STATUS_UPDATED", "NEW_MESSAGE", "PRODUCT_IN_STOCK"
 
-    @Column(nullable = false, precision = 18, scale = 2)
-    private BigDecimal total = BigDecimal.ZERO;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt; //criar no banco add essa coluna no sql
-
-    @Column(name = "last_reminder_sent_at")
-    private LocalDateTime lastReminderSentAt;
+    private LocalDateTime updatedAt;
 }
-

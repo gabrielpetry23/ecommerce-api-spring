@@ -57,6 +57,10 @@ public class UserService {
         return repository.findAll(pageable);
     }
 
+    public List<User> findAll() {
+        return repository.findAll();
+    }
+
     @Transactional
     public Address addAddress(UUID userId, AddressDTO dto) {
 

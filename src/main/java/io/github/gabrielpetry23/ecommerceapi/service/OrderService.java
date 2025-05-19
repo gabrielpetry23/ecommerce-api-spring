@@ -36,6 +36,7 @@ public class OrderService {
     private final OrderMapper mapper;
     private final TrackingDetailsRepository trackingDetailsRepository;
     private final CouponService couponService;
+    private final NotificationService notificationService;
 
     @Transactional
     public Order createOrder(OrderRequestDTO dto) {
@@ -84,6 +85,9 @@ public class OrderService {
 
         repository.save(order);
 
+        String createdContent = String.format("Seu pedido #%s foi criado com sucesso!", order.getId().toString().substring(0, 8));
+        notificationService.sendAndPersistNotification(order.getUser(), "ORDER_CREATED", createdContent);
+
         return order;
     }
 
@@ -128,6 +132,7 @@ public class OrderService {
         Order order = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
+        OrderStatus oldStatus = order.getStatus();
         OrderStatus newStatus;
         try {
             newStatus = OrderStatus.valueOf(dto.status().toUpperCase());
@@ -150,9 +155,33 @@ public class OrderService {
             }
             trackingDetailsRepository.save(trackingDetails);
             order.setTrackingDetails(trackingDetails);
+        } else if (newStatus != OrderStatus.PAID && order.getTrackingDetails() != null) {
+            TrackingDetails currentTrackingDetails = order.getTrackingDetails();
+            currentTrackingDetails.setStatus(simulateTrackingStatus(newStatus));
+            trackingDetailsRepository.save(currentTrackingDetails);
         }
 
         repository.save(order);
+
+        sendNotification(order, oldStatus, newStatus);
+    }
+
+    private void sendNotification(Order order, OrderStatus oldStatus, OrderStatus newStatus) {
+        String content;
+        if (newStatus == OrderStatus.PAID) {
+            content = String.format("Seu pedido #%s foi pago com sucesso!", order.getId().toString().substring(0, 8));
+        } else if (newStatus == OrderStatus.CANCELLED) {
+            content = String.format("Seu pedido #%s foi cancelado.", order.getId().toString().substring(0, 8));
+        } else if (newStatus == OrderStatus.DELIVERED) {
+            content = String.format("Seu pedido #%s foi entregue com sucesso!", order.getId().toString().substring(0, 8));
+        } else if (newStatus == OrderStatus.IN_DELIVERY) {
+            content = String.format("Seu pedido #%s está a caminho!", order.getId().toString().substring(0, 8));
+        } else if (newStatus == OrderStatus.IN_PREPARATION) {
+            content = String.format("Seu pedido #%s está sendo preparado!", order.getId().toString().substring(0, 8));
+        }else {
+            content = String.format("Seu pedido #%s teve o status alterado de %s para %s.", order.getId().toString().substring(0, 8), oldStatus, newStatus);
+        }
+        notificationService.sendAndPersistNotification(order.getUser(), "ORDER_STATUS_UPDATE", content);
     }
 
     private void validateStatusTransition(Order currentOrder, OrderStatus newStatus) {

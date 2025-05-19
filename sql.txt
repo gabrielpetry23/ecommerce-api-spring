@@ -56,6 +56,8 @@ CREATE TABLE carts (
     id UUID NOT NULL PRIMARY KEY,
     user_id UUID NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_reminder_sent_at TIMESTAMP,
     CONSTRAINT fk_user_cart FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -152,7 +154,48 @@ CREATE TABLE payment_methods (
     CONSTRAINT fk_user_payment_method FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE notifications (
+    id UUID NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    read_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_notification FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE email_queue (
+    id UUID NOT NULL PRIMARY KEY,
+    recipient_email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    attempts INT NOT NULL DEFAULT 0,
+    last_attempt_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    error_message TEXT
+);
+
+CREATE TABLE email_verification_tokens (
+    id UUID NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL UNIQUE,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_verification_token FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
 -- INDEXES
 CREATE INDEX idx_products_name ON products (name);
 CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
 CREATE INDEX idx_order_items_order_id ON order_items (order_id);
+
+CREATE INDEX idx_notifications_user_id ON notifications (user_id);
+CREATE INDEX idx_notifications_user_id_read_at ON notifications (user_id, read_at);
+
+CREATE INDEX idx_email_queue_status ON email_queue (status);
+
+CREATE INDEX idx_email_verification_tokens_token ON email_verification_tokens (token);

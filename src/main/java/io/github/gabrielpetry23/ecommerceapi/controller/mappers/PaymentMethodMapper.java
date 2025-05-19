@@ -14,7 +14,6 @@ public interface PaymentMethodMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-//    @Mapping(source = "user", target = "user")
     @Mapping(target = "user", ignore = true)
     PaymentMethod toEntity(PaymentMethodRequestDTO dto);
 
