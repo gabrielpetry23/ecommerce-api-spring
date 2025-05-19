@@ -9,7 +9,6 @@ import io.github.gabrielpetry23.ecommerceapi.repository.OrderRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.TrackingDetailsRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -173,6 +173,8 @@ public class OrderService {
         Order order = repository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
+        userValidator.validateCurrentUserAccessOrAdmin(order.getUser().getId());
+
         if (order.getTrackingDetails() == null) {
             throw new OperationNotAllowedException("Tracking details not available yet. Only available after payment.");
         }
@@ -180,33 +182,23 @@ public class OrderService {
         TrackingDetails trackingDetails = trackingDetailsRepository.findById(order.getTrackingDetails().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Tracking details not found"));
 
-        TrackingResponseDTO dto = new TrackingResponseDTO(
+        return new TrackingResponseDTO(
                 trackingDetails.getTrackingCode(),
                 trackingDetails.getCarrier(),
                 trackingDetails.getStatus(),
                 trackingDetails.getEstimatedDelivery()
         );
-
-        return dto;
     }
 
     private String simulateTrackingStatus(OrderStatus orderStatus) {
-        switch (orderStatus) {
-            case PENDING:
-                return "Processing Order";
-            case PAID:
-                return "Order Confirmed";
-            case IN_PREPARATION:
-                return "Preparing for Shipment";
-            case IN_DELIVERY:
-                return "In Transit";
-            case DELIVERED:
-                return "Delivered";
-            case CANCELLED:
-                return "Cancelled";
-            default:
-                return "Status Unavailable";
-        }
+        return switch (orderStatus) {
+            case PENDING -> "Processing Order";
+            case PAID -> "Order Confirmed";
+            case IN_PREPARATION -> "Preparing for Shipment";
+            case IN_DELIVERY -> "In Transit";
+            case DELIVERED -> "Delivered";
+            case CANCELLED -> "Cancelled";
+        };
     }
 
     public Order applyCoupon(String id, ApplyCouponRequestDTO dto) {
@@ -243,7 +235,7 @@ public class OrderService {
             if (coupon.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
                 discountedTotal = discountedTotal.subtract(coupon.getDiscountAmount());
             } else if (coupon.getDiscountPercentage().compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal discountRate = coupon.getDiscountPercentage().divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal discountRate = coupon.getDiscountPercentage().divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
                 BigDecimal discount = originalTotal.multiply(discountRate);
                 discountedTotal = discountedTotal.subtract(discount);
             }
@@ -252,6 +244,6 @@ public class OrderService {
             }
         }
 
-        return discountedTotal.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return discountedTotal.setScale(2, RoundingMode.HALF_UP);
     }
 }

@@ -2,10 +2,8 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.ClientDTO;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.ResourceNotFoundException;
-import io.github.gabrielpetry23.ecommerceapi.model.Category;
 import io.github.gabrielpetry23.ecommerceapi.model.Client;
 import io.github.gabrielpetry23.ecommerceapi.repository.ClientRepository;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

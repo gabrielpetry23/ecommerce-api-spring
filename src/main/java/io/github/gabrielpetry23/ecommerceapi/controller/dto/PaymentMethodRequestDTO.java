@@ -2,8 +2,6 @@ package io.github.gabrielpetry23.ecommerceapi.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.time.LocalDate;
-
 public record PaymentMethodRequestDTO(
         @NotBlank(message = "Type is required")
         String type,

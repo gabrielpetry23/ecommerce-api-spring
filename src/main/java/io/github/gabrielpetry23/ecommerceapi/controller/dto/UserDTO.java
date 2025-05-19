@@ -1,7 +1,5 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.dto;
 
-import io.github.gabrielpetry23.ecommerceapi.model.Address;
-import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -15,7 +13,6 @@ public record UserDTO(
         String email,
         @NotBlank(message = "required field")
         String password,
-        //@ValidRole
         String role
 ) {
 }

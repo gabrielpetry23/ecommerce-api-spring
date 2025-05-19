@@ -1,7 +1,5 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.dto;
 
-import io.github.gabrielpetry23.ecommerceapi.model.*;
-
 import java.util.List;
 
 public record UserDetailsDTO(

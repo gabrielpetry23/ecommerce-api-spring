@@ -6,7 +6,6 @@ import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CartMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Cart;
 import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
-import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.CartRepository;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
 import io.github.gabrielpetry23.ecommerceapi.validators.UserValidator;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -68,14 +66,6 @@ public class CartService {
         cart.setTotal(calculateTotalPrice(cart));
         repository.save(cart);
         return cartItem;
-    }
-
-    @Transactional
-    private Cart createCartForUser(User user) {
-        Cart cart = new Cart();
-        cart.setUser(user);
-        cart.setItems(new ArrayList<>());
-        return repository.save(cart);
     }
 
     @Transactional

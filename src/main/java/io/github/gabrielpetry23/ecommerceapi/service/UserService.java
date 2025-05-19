@@ -72,10 +72,6 @@ public class UserService {
         return createdAddress;
     }
 
-    public void validateCurrentUserAccessOrAdmin(UUID userId) {
-        validator.validateCurrentUserAccessOrAdmin(userId);
-    }
-
     @Transactional
     public PaymentMethod addPaymentMethod(UUID userId, PaymentMethodRequestDTO dto) {
 

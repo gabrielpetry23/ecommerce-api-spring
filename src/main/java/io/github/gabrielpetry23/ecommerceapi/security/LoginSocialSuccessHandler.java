@@ -1,7 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.security;
 
 import io.github.gabrielpetry23.ecommerceapi.model.User;
-import io.github.gabrielpetry23.ecommerceapi.security.CustomAuthentication;
 import io.github.gabrielpetry23.ecommerceapi.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class LoginSocialSuccessHandler extends SavedRequestAwareAuthenticationSu
         String email = oAuth2User.getAttribute("email");
 
         User user = userService.findByEmail(email);
-        String nome = oAuth2User.getAttribute("name");
+        String name = oAuth2User.getAttribute("name");
 
         if (user == null) {
             user = registerUser(email);

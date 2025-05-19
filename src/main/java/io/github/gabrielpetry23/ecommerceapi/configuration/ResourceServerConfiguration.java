@@ -29,9 +29,7 @@ public class ResourceServerConfiguration {
             JwtCustomAuthenticationFilter jwtCustomAuthenticationFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(configurer -> {
-                    configurer.loginPage("/login").permitAll();
-                })
+                .formLogin(configurer -> configurer.loginPage("/login").permitAll())
 
                 .authorizeHttpRequests(authorize -> {
                     authorize.requestMatchers("/login/**").permitAll();
@@ -41,11 +39,9 @@ public class ResourceServerConfiguration {
 
                     authorize.anyRequest().authenticated();
                 })
-                .oauth2Login(oauth2 -> {
-                    oauth2
-                            .loginPage("/login")
-                            .successHandler(successHandler);
-                })
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .successHandler(successHandler))
                 .oauth2ResourceServer(oauth2Rs -> oauth2Rs.jwt(Customizer.withDefaults()))
                 .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .build();

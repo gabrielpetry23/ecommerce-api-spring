@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface OrderMapper { ;
+public interface OrderMapper {
 
     @Mapping(source = "total", target = "totalPrice")
     @Mapping(source = "items", target = "orderItems")

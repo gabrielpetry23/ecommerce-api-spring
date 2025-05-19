@@ -20,12 +20,6 @@ public class UserValidator {
         }
     }
 
-    public void validateCurrentUserAccess(UUID userId, UUID currentUserId) {
-        if (!currentUserId.equals(userId)) {
-            throw new AccessDeniedException("Access denied.");
-        }
-    }
-
     public void validateCurrentUserAccessOrAdmin(UUID userId) {
         User currentUser = securityService.getCurrentUser();
         boolean isSameUser = currentUser.getId().equals(userId);

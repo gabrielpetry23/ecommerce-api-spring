@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -65,9 +63,7 @@ public class UserController implements GenericController {
                 .map(user -> {
                     var dto = mapper.toDTO(user);
                     return ResponseEntity.ok(dto);
-                }).orElseGet(() -> {
-                    return ResponseEntity.notFound().build();
-                });
+                }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
