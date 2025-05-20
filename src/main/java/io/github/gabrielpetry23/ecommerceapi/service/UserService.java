@@ -244,7 +244,7 @@ public class UserService {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        validator.validateCurrentUserAccessOrAdmin(user.getId());
+        validator.validateCurrentUserAccess(user.getId());
 
         notificationService.markAllNotificationsAsReadForUser(user);
     }
@@ -253,7 +253,7 @@ public class UserService {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        validator.validateCurrentUserAccessOrAdmin(user.getId());
+        validator.validateCurrentUserAccess(user.getId());
 
         notificationService.markNotificationAsRead(UUID.fromString(notificationId));
     }

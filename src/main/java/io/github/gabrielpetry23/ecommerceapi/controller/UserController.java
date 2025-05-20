@@ -339,6 +339,13 @@ public class UserController implements GenericController {
     }
 
 
+    @Operation(summary = "List User Notifications", description = "Endpoint to list all notifications of a user. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of user notifications"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/{userId}/notifications")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<List<NotificationResponseDTO>> getNotifications(
@@ -348,6 +355,13 @@ public class UserController implements GenericController {
         return ResponseEntity.ok(notificationsDTO);
     }
 
+    @Operation(summary = "List User Unread Notifications", description = "Endpoint to list all unread notifications of a user. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of unread user notifications"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/{userId}/notifications/unread")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
     public ResponseEntity<List<NotificationResponseDTO>> getUnreadNotifications(
@@ -357,8 +371,15 @@ public class UserController implements GenericController {
         return ResponseEntity.ok(notificationsDTO);
     }
 
+    @Operation(summary = "Mark All Notifications as Read", description = "Endpoint to mark all notifications of a user as read. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "All notifications marked as read"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PutMapping("/{userId}/notifications/mark-all-as-read")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> markAllNotificationsAsRead(
             @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to mark notifications as read for", required = true, schema = @Schema(type = "string", format = "uuid"))
             @PathVariable("userId") String userId) {
@@ -366,8 +387,15 @@ public class UserController implements GenericController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Mark Notification as Read", description = "Endpoint to mark a specific notification of a user as read. Requires USER, ADMIN, or MANAGER role.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Notification marked as read"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User or notification not found")
+    })
     @PutMapping("/{userId}/notifications/{notificationId}/mark-as-read")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> markNotificationAsRead(
             @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to mark the notification as read for", required = true, schema = @Schema(type = "string", format = "uuid"))
             @PathVariable("userId") String userId,

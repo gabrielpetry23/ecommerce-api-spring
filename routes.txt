@@ -72,3 +72,15 @@ GET    /users/{userId}/payment-methods/{paymentMethodId}  Obter método de pagam
 POST   /users/{userId}/payment-methods                    Criar método de pagamento         [USER (próprio)]
 PUT    /users/{userId}/payment-methods/{paymentMethodId}  Atualizar método de pagamento     [USER (próprio), ADMIN, MANAGER]
 DELETE /users/{userId}/payment-methods/{paymentMethodId}  Deletar método de pagamento       [USER (próprio), ADMIN, MANAGER]
+
+NOTIFICAÇÕES
+=============
+GET    /users/{userId}/notifications                   Obter notificações de um usuário   [USER (próprio), ADMIN, MANAGER]
+GET    /users/{userId}/notifications/{notificationId}  Obter notificação específica      [USER (próprio), ADMIN, MANAGER]
+PUT   /users/{userId}/notifications/mark-as-read       Marcar notificação como lida       [USER (próprio)]
+PUT   /users/{userId}/notifications/mark-as-read       Marcar notificação como lida       [USER (próprio)]
+
+CUPONS
+======
+GET    /coupons                          Listar todos os cupons                        [ADMIN, MANAGER]
+POST   /coupons                          Criar um novo cupom                           [ADMIN, MANAGER]

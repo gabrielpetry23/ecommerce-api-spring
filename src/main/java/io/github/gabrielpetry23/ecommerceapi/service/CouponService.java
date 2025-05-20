@@ -1,5 +1,7 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.CouponDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.CouponMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.InvalidCouponException;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.Coupon;
@@ -7,6 +9,8 @@ import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.CouponRepository;
 import io.github.gabrielpetry23.ecommerceapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final CouponMapper mapper;
 
     @Transactional
     public void save(Coupon coupon) {
@@ -67,5 +72,10 @@ public class CouponService {
                 .filter(Coupon::getIsActive)
                 .filter(coupon -> coupon.getValidUntil().isAfter(LocalDate.now()))
                 .orElseThrow(() -> new InvalidCouponException("Invalid or expired coupon code: " + code));
+    }
+
+    public Page<CouponDTO> findAll(int page, int size) {
+        Page<Coupon> coupons = couponRepository.findAll(PageRequest.of(page, size));
+        return coupons.map(mapper::toDTO);
     }
 }
