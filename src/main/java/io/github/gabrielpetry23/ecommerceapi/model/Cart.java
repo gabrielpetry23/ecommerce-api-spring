@@ -1,5 +1,8 @@
 package io.github.gabrielpetry23.ecommerceapi.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -26,9 +29,11 @@ public class Cart {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonManagedReference
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<CartItem> items = new ArrayList<>();
 
     @Column(nullable = false, precision = 18, scale = 2)
@@ -38,7 +43,7 @@ public class Cart {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt; //criar no banco add essa coluna no sql
+    private LocalDateTime updatedAt;
 
     @Column(name = "last_reminder_sent_at")
     private LocalDateTime lastReminderSentAt;

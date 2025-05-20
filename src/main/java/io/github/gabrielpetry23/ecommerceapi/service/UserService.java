@@ -30,6 +30,7 @@ public class UserService {
     private final PaymentMethodService paymentMethodService;
     private final CartService cartService;
     private final OrderService orderService;
+    private final NotificationService notificationService;
 
     @Transactional
     public void save(User user) {
@@ -55,10 +56,6 @@ public class UserService {
     public Page<User> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAll(pageable);
-    }
-
-    public List<User> findAll() {
-        return repository.findAll();
     }
 
     @Transactional
@@ -223,5 +220,41 @@ public class UserService {
 
         Pageable pageable = PageRequest.of(page, size);
         return orderService.findAllOrdersDTOByUserId(UUID.fromString(userId), pageable);
+    }
+
+    public List<NotificationResponseDTO> findAllNotificationsByUserId(String userId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return notificationService.findAllNotificationsForUser(user);
+    }
+
+    public List<NotificationResponseDTO> findAllUnreadNotificationsByUserId(String userId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        return notificationService.findAllUnreadNotificationsForUser(user);
+    }
+
+    public void markAllNotificationsAsReadByUserId(String userId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        notificationService.markAllNotificationsAsReadForUser(user);
+    }
+
+    public void markNotificationAsReadByUserIdAndNotificationId(String userId, String notificationId) {
+        User user = repository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validator.validateCurrentUserAccessOrAdmin(user.getId());
+
+        notificationService.markNotificationAsRead(UUID.fromString(notificationId));
     }
 }

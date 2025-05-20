@@ -16,11 +16,14 @@ public interface UserMapper {
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "paymentMethods", ignore = true)
+    @Mapping(target = "addresses", ignore = true)
+    @Mapping(target = "notifications", ignore = true)
     User toEntity(UserDTO dto);
 
     @Mapping(source = "cart", target = "cart")
     @Mapping(source = "orders", target = "orders")
     @Mapping(source = "reviews", target = "reviews")
     @Mapping(source = "paymentMethods", target = "paymentMethods")
+    @Mapping(source = "addresses", target = "addresses")
     UserDetailsDTO toDTO(User user);
 }

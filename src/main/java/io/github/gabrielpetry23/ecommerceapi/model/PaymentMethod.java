@@ -1,5 +1,6 @@
 package io.github.gabrielpetry23.ecommerceapi.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -22,6 +23,7 @@ public class PaymentMethod {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonManagedReference
     private User user;
 
     private String type;

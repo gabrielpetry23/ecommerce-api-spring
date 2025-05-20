@@ -24,6 +24,7 @@ public abstract class ProductMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", expression = "java(categoryRepository.findById(dto.categoryId()).orElse(null))")
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "images", ignore = true)
     public abstract Product toEntity(ProductRequestDTO dto);
 
     @Mapping(source = "category.id", target = "category.id")

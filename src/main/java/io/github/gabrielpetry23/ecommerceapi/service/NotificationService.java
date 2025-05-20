@@ -1,5 +1,7 @@
 package io.github.gabrielpetry23.ecommerceapi.service;
 
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.NotificationResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.mappers.NotificationMapper;
 import io.github.gabrielpetry23.ecommerceapi.model.Notification;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.repository.NotificationRepository;
@@ -17,6 +19,7 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository repository;
+    private final NotificationMapper mapper;
 
     public void sendAndPersistNotification(User user, String type, String content) {
         Notification notification = new Notification();
@@ -25,8 +28,16 @@ public class NotificationService {
         notification.setContent(content);
         repository.save(notification);
 
+        NotificationResponseDTO dto = new NotificationResponseDTO(
+                notification.getId(),
+                user.getId(),
+                notification.getType(),
+                notification.getContent(),
+                notification.getReadAt()
+        );
+
         String destination = "/topic/user-notifications/" + user.getId().toString();
-        messagingTemplate.convertAndSend(destination, notification);
+        messagingTemplate.convertAndSend(destination, dto);
     }
 
     public void markNotificationAsRead(UUID notificationId) {
@@ -42,11 +53,17 @@ public class NotificationService {
         repository.saveAll(unreadNotifications);
     }
 
-    public List<Notification> getNotificationsForUser(User user) {
-        return repository.findByUserOrderByCreatedAtDesc(user);
+    public List<NotificationResponseDTO> findAllNotificationsForUser(User user) {
+        List<Notification> notifications = repository.findByUserOrderByCreatedAtDesc(user);
+        return notifications.stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
-    public List<Notification> getUnreadNotificationsForUser(User user) {
-        return repository.findByUserAndReadAtIsNullOrderByCreatedAtDesc(user);
+    public List<NotificationResponseDTO> findAllUnreadNotificationsForUser(User user) {
+        List<Notification> notifications = repository.findByUserAndReadAtIsNullOrderByCreatedAtDesc(user);
+        return notifications.stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 }

@@ -1,8 +1,7 @@
-package io.github.gabrielpetry23.ecommerceapi.service; // Mesma pasta dos outros serviços
+package io.github.gabrielpetry23.ecommerceapi.service;
 
 import io.github.gabrielpetry23.ecommerceapi.model.Cart;
-import io.github.gabrielpetry23.ecommerceapi.repository.CartRepository; // PACOTE DO SEU REPOSITÓRIO DE CARRINHO
-import io.github.gabrielpetry23.ecommerceapi.model.User; // Seu modelo de User
+import io.github.gabrielpetry23.ecommerceapi.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class CartReminderService {
         System.out.println("Founded " + eligibleCarts.size() + " abandoned carts.");
 
         for (Cart cart : eligibleCarts) {
-            String content = String.format("Você deixou %d item(s) no seu carrinho. Não perca suas escolhas!", cart.getItems().size());
+            String content = String.format("You left %d item(s) in your cart. Don't lose your choices!", cart.getItems().size());
             notificationService.sendAndPersistNotification(cart.getUser(), "CART_REMINDER", content);
             cart.setLastReminderSentAt(LocalDateTime.now());
             cartRepository.save(cart);

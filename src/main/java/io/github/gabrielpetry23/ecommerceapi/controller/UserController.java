@@ -337,4 +337,43 @@ public class UserController implements GenericController {
         Page<OrderResponseDTO> dtoPage = service.findAllOrdersDTOByUserId(userId, page, size);
         return ResponseEntity.ok(dtoPage);
     }
+
+
+    @GetMapping("/{userId}/notifications")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<List<NotificationResponseDTO>> getNotifications(
+            @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to get notifications for", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable("userId") String userId) {
+        List<NotificationResponseDTO> notificationsDTO = service.findAllNotificationsByUserId(userId);
+        return ResponseEntity.ok(notificationsDTO);
+    }
+
+    @GetMapping("/{userId}/notifications/unread")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<List<NotificationResponseDTO>> getUnreadNotifications(
+            @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to get unread notifications for", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable("userId") String userId) {
+        List<NotificationResponseDTO> notificationsDTO = service.findAllUnreadNotificationsByUserId(userId);
+        return ResponseEntity.ok(notificationsDTO);
+    }
+
+    @PutMapping("/{userId}/notifications/mark-all-as-read")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Object> markAllNotificationsAsRead(
+            @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to mark notifications as read for", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable("userId") String userId) {
+        service.markAllNotificationsAsReadByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{userId}/notifications/{notificationId}/mark-as-read")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Object> markNotificationAsRead(
+            @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to mark the notification as read for", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable("userId") String userId,
+            @Parameter(name = "notificationId", in = ParameterIn.PATH, description = "ID of the notification to mark as read", required = true, schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable("notificationId") String notificationId) {
+        service.markNotificationAsReadByUserIdAndNotificationId(userId, notificationId);
+        return ResponseEntity.noContent().build();
+    }
 }
