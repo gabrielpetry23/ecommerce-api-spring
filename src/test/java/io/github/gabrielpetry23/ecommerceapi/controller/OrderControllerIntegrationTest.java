@@ -74,24 +74,6 @@ public class OrderControllerIntegrationTest {
         return user;
     }
 
-//    @Test
-//    void createOrder_ValidInput_ReturnsCreated() throws Exception {
-//        when(securityService.getCurrentUser()).thenReturn(createMockUser(TEST_USER_ID, "testUser", "USER"));
-//        OrderRequestDTO requestDTO = new OrderRequestDTO(UUID.randomUUID().toString(), UUID.randomUUID().toString(), null);
-//        Order createdOrder = new Order();
-//        createdOrder.setId(UUID.randomUUID());
-//
-//        when(orderService.createOrder(any(OrderRequestDTO.class))).thenReturn(createdOrder);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.post(ORDERS_ENDPOINT)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(requestDTO))
-//                        .with(csrf())
-//                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
-//                .andExpect(status().isCreated())
-//                .andExpect(MockMvcResultMatchers.header().string("Location", ORDERS_ENDPOINT + "/" + createdOrder.getId()));
-//    }
-
     @Test
     void createOrder_ValidInput_ReturnsCreated() throws Exception {
         OrderRequestDTO requestDTO = new OrderRequestDTO(UUID.randomUUID().toString(), UUID.randomUUID().toString(), null);
@@ -151,23 +133,8 @@ public class OrderControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-//    @Test
-//    void getOrderById_AsAnotherUser_ReturnsForbidden() throws Exception {
-//        UUID orderId = UUID.randomUUID();
-//        Order order = createMockOrder(orderId, TEST_USER_ID);
-//
-//        Mockito.when(orderService.findById(orderId))
-//                .thenThrow(new AccessDeniedException("Access denied."));
-//
-//        mockMvc.perform(MockMvcRequestBuilders.get(ORDERS_ENDPOINT + "/" + orderId)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .with(jwtForUser(ANOTHER_USER_ID, "anotherUser", "USER")))
-//                .andExpect(status().isForbidden());
-//    }
-
     @Test
     void getOrderById_AsAnotherUser_ReturnsForbidden() throws Exception {
-        // ID do pedido que pertence a outro usuário (TEST_USER_ID)
         UUID orderId = UUID.fromString("14d234e5-37bb-482d-a1b9-5a7e1d7088c1");
         Order order = createMockOrder(orderId, TEST_USER_ID);
 

@@ -3,39 +3,38 @@ package io.github.gabrielpetry23.ecommerceapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CartItemRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.CartResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.CartItemResponseDTO;
-import io.github.gabrielpetry23.ecommerceapi.controller.dto.ProductIdentifierDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.UserNameIdDTO;
 import io.github.gabrielpetry23.ecommerceapi.model.Cart;
 import io.github.gabrielpetry23.ecommerceapi.model.CartItem;
-import io.github.gabrielpetry23.ecommerceapi.model.Product;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
-import io.github.gabrielpetry23.ecommerceapi.repository.CartRepository;
-import io.github.gabrielpetry23.ecommerceapi.repository.ProductRepository;
-import io.github.gabrielpetry23.ecommerceapi.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
+import io.github.gabrielpetry23.ecommerceapi.service.CartService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@ActiveProfiles("test")
 public class CartControllerIntegrationTest {
 
     @Autowired
@@ -44,109 +43,102 @@ public class CartControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserRepository userRepository;
+    @MockitoBean
+    private CartService cartService;
 
-    @Autowired
-    private CartRepository cartRepository;
+    @MockitoBean
+    private SecurityService securityService;
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final String CARTS_ENDPOINT = "http://localhost/carts";
+    private final UUID TEST_USER_ID = UUID.fromString("a1b2c3d4-e5f6-7890-1234-567890abcdef");
+    private final UUID TEST_CART_ID = UUID.fromString("0bc03fcc-eeb6-4e59-93de-f05b9cce6093");
 
-    private User testUser;
-    private Cart testCart;
-    private Product testProduct;
+    private User createMockUser(UUID id, String username, String role) {
+        User user = new User();
+        user.setId(id);
+        user.setEmail(username);
+        user.setRole(role);
+        return user;
+    }
 
-    @BeforeEach
-    @Transactional
-    void setUp() {
-        // Criação de um usuário
-        testUser = new User();
-        testUser.setId(UUID.randomUUID());
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-        testUser.setRole("USER");
-        userRepository.saveAndFlush(testUser);
-
-        // Criação de um carrinho
-        testCart = new Cart();
-        testCart.setId(UUID.randomUUID());
-        testCart.setUser(testUser);
-        cartRepository.saveAndFlush(testCart);
-
-        // Criação de um produto
-        testProduct = new Product();
-        testProduct.setId(UUID.randomUUID());
-        testProduct.setName("Test Product");
-        testProduct.setPrice(BigDecimal.TEN);
-        productRepository.saveAndFlush(testProduct);
-
-        // Recarregar entidades para evitar estado "detached"
-        testUser = userRepository.findById(testUser.getId()).orElseThrow();
-        testCart = cartRepository.findById(testCart.getId()).orElseThrow();
-        testProduct = productRepository.findById(testProduct.getId()).orElseThrow();
+    private Cart createMockCart(UUID id, User user) {
+        Cart cart = new Cart();
+        cart.setId(id);
+        cart.setUser(user);
+        cart.setTotal(BigDecimal.TEN);
+        cart.setItems(Collections.emptyList());
+        return cart;
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = "USER")
-    void createCart_userRole_shouldReturnCreatedWithLocation() throws Exception {
-        mockMvc.perform(post("/carts"))
+    void createCart_ValidInput_ReturnsCreated() throws Exception {
+        Cart mockCart = createMockCart(TEST_CART_ID, createMockUser(TEST_USER_ID, "testUser", "USER"));
+
+        when(cartService.createCart()).thenReturn(mockCart);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CARTS_ENDPOINT)
+                        .with(csrf())
+                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
                 .andExpect(status().isCreated())
-                .andExpect(header().exists("Location"));
+                .andExpect(header().string("Location", CARTS_ENDPOINT + "/" + mockCart.getId()));
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = "USER")
-    void getCartById_existingCartForUser_shouldReturnOkWithCartDTO() throws Exception {
-        mockMvc.perform(get("/carts/{id}", testCart.getId()))
+    void getCartById_AsOwner_ReturnsOk() throws Exception {
+        Cart mockCart = createMockCart(TEST_CART_ID, createMockUser(TEST_USER_ID, "testUser", "USER"));
+        UserNameIdDTO userDTO = new UserNameIdDTO(mockCart.getUser().getId(), mockCart.getUser().getEmail());
+        CartResponseDTO mockCartDTO = new CartResponseDTO(userDTO, Collections.emptyList());
+
+        when(cartService.findById(TEST_CART_ID)).thenReturn(Optional.of(mockCart));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(CARTS_ENDPOINT + "/" + TEST_CART_ID)
+                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.id").value(testUser.getId().toString()))
-                .andExpect(jsonPath("$.user.email").value(testUser.getEmail()));
+                .andExpect(jsonPath("$.user.id").value(TEST_USER_ID.toString()));
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = "USER")
-    void addItemToCart_validInput_shouldReturnCreatedWithLocation() throws Exception {
-        CartItemRequestDTO requestDTO = new CartItemRequestDTO(testProduct.getId().toString(), 2);
+    void addItemToCart_ValidInput_ReturnsCreated() throws Exception {
+        CartItemRequestDTO requestDTO = new CartItemRequestDTO(UUID.randomUUID().toString(), 2);
+        CartItem mockItem = new CartItem();
+        mockItem.setId(UUID.randomUUID());
+        mockItem.setCart(createMockCart(TEST_CART_ID, createMockUser(TEST_USER_ID, "testUser", "USER")));
 
-        mockMvc.perform(post("/carts/{id}/items", testCart.getId())
+        when(cartService.addItem(any(UUID.class), any(CartItemRequestDTO.class))).thenReturn(mockItem);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CARTS_ENDPOINT + "/" + TEST_CART_ID + "/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(objectMapper.writeValueAsString(requestDTO))
+                        .with(csrf())
+                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = "USER")
-    void updateItemQuantity_validInput_shouldReturnNoContent() throws Exception {
-        CartItem cartItem = new CartItem();
-        cartItem.setId(UUID.randomUUID());
-        cartItem.setCart(testCart);
-        cartItem.setProduct(testProduct);
-        cartItem.setQuantity(1);
-        cartItem.setTotal(BigDecimal.TEN);
-        cartRepository.saveAndFlush(testCart);
+    void updateItemQuantity_ValidInput_ReturnsNoContent() throws Exception {
+        CartItemRequestDTO requestDTO = new CartItemRequestDTO(UUID.randomUUID().toString(), 5);
 
-        CartItemRequestDTO requestDTO = new CartItemRequestDTO(testProduct.getId().toString(), 5);
-
-        mockMvc.perform(put("/carts/{cartId}/items/{itemId}", testCart.getId(), cartItem.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put(CARTS_ENDPOINT + "/" + TEST_CART_ID + "/items/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(objectMapper.writeValueAsString(requestDTO))
+                        .with(csrf())
+                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = "USER")
-    void deleteItemFromCart_validInput_shouldReturnNoContent() throws Exception {
-        CartItem cartItem = new CartItem();
-        cartItem.setId(UUID.randomUUID());
-        cartItem.setCart(testCart);
-        cartItem.setProduct(testProduct);
-        cartItem.setQuantity(1);
-        cartItem.setTotal(BigDecimal.TEN);
-        cartRepository.saveAndFlush(testCart);
-
-        mockMvc.perform(delete("/carts/{cartId}/items/{itemId}", testCart.getId(), cartItem.getId()))
+    void emptyCart_AsOwner_ReturnsNoContent() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(CARTS_ENDPOINT + "/" + TEST_CART_ID)
+                        .with(csrf())
+                        .with(jwtForUser(TEST_USER_ID, "testUser", "USER")))
                 .andExpect(status().isNoContent());
+    }
+
+    private static RequestPostProcessor jwtForUser(UUID userId, String username, String role) {
+        return jwt().jwt(jwt -> jwt
+                        .claim("sub", userId.toString())
+                        .claim("preferred_username", username))
+                .authorities(createAuthorityList(role));
     }
 }
