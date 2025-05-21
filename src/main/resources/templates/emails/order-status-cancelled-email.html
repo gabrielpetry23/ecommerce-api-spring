@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Order Has Been Cancelled</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { width: 80%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { background-color: #f8f8f8; padding: 10px; text-align: center; border-bottom: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .footer { margin-top: 20px; font-size: 0.8em; color: #666; text-align: center; }
+        .cancellation-note { background-color: #ffe0e0; border: 1px solid #ffcccc; padding: 15px; margin-top: 20px; border-radius: 5px; color: #a00; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Order Cancelled - #<span th:text="${orderId}"></span></h1>
+    </div>
+    <p>Hi <strong th:text="${userName}"></strong>,</p>
+    <p>We regret to inform you that your order **#<span th:text="${orderId}"></span>** has been **cancelled**.</p>
+
+    <div class="cancellation-note">
+        <p><strong>Reason for Cancellation:</strong></p>
+        <p>For more details or questions about this cancellation, please contact our support team.</p>
+    </div>
+
+    <h3>Summary of Cancelled Order:</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orderItems}">
+            <td th:text="${item.product.name}"></td>
+            <td th:text="${item.quantity}"></td>
+            <td th:text="${#numbers.formatCurrency(item.product.price)}"></td>
+            <td th:text="${#numbers.formatCurrency(item.quantity * item.product.price)}"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="text-align: right;"><strong>Order Total:</strong></td>
+            <td th:text="${#numbers.formatCurrency(totalAmount)}"></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <p>We appreciate your understanding.</p>
+    <p>Sincerely,</p>
+    <p>The EcommerceAPI Team</p>
+    <div class="footer">
+        <p>&copy; 2025 EcommerceAPI. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

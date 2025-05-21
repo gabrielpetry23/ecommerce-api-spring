@@ -31,11 +31,13 @@ public class UserService {
     private final CartService cartService;
     private final OrderService orderService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public void save(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
-        repository.save(user);
+        User savedUser = repository.save(user);
+        emailService.sendWelcomeEmail(savedUser);
     }
 
     public User findByEmail(String email) {

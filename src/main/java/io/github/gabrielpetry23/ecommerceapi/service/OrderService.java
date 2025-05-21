@@ -37,6 +37,7 @@ public class OrderService {
     private final TrackingDetailsRepository trackingDetailsRepository;
     private final CouponService couponService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public Order createOrder(OrderRequestDTO dto) {
@@ -87,6 +88,8 @@ public class OrderService {
 
         String createdContent = String.format("Seu pedido #%s foi criado com sucesso!", order.getId().toString().substring(0, 8));
         notificationService.sendAndPersistNotification(order.getUser(), "ORDER_CREATED", createdContent);
+
+        emailService.sendOrderConfirmationEmail(order.getUser(), order);
 
         return order;
     }
@@ -164,6 +167,17 @@ public class OrderService {
         repository.save(order);
 
         sendNotification(order, oldStatus, newStatus);
+        sendEmail(order, newStatus);
+    }
+
+    private void sendEmail(Order order, OrderStatus newStatus) {
+        TrackingResponseDTO trackingDTO = new TrackingResponseDTO(
+                order.getTrackingDetails().getTrackingCode(),
+                order.getTrackingDetails().getCarrier(),
+                order.getTrackingDetails().getStatus(),
+                order.getTrackingDetails().getEstimatedDelivery()
+        );
+        emailService.sendOrderStatusUpdateEmail(order.getUser(), order, newStatus.name(), trackingDTO);
     }
 
     private void sendNotification(Order order, OrderStatus oldStatus, OrderStatus newStatus) {

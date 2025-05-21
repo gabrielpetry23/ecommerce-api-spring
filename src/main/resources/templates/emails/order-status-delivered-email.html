@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Order Has Been Delivered!</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { width: 80%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { background-color: #f8f8f8; padding: 10px; text-align: center; border-bottom: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .tracking-details { background-color: #eaf7ff; border: 1px solid #cce7ff; padding: 15px; margin-top: 20px; border-radius: 5px; }
+        .footer { margin-top: 20px; font-size: 0.8em; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Order Delivered! - #<span th:text="${orderId}"></span></h1>
+    </div>
+    <p>Hi <strong th:text="${userName}"></strong>,</p>
+    <p>Great news! Your order **#<span th:text="${orderId}"></span>** has been **successfully delivered**!</p>
+    <p>We hope you are satisfied with your purchase.</p>
+
+    <div class="tracking-details" th:if="${trackingDetails != null}">
+        <h3>Tracking Details (Final):</h3>
+        <p><strong>Tracking Code:</strong> <span th:text="${trackingDetails.trackingCode}"></span></p>
+        <p><strong>Carrier:</strong> <span th:text="${trackingDetails.carrier}"></span></p>
+        <p><strong>Final Status:</strong> <span th:text="${trackingDetails.status}"></span></p>
+    </div>
+
+    <h3>Order Summary:</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orderItems}">
+            <td th:text="${item.product.name}"></td>
+            <td th:text="${item.quantity}"></td>
+            <td th:text="${#numbers.formatCurrency(item.product.price)}"></td>
+            <td th:text="${#numbers.formatCurrency(item.quantity * item.product.price)}"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="text-align: right;"><strong>Order Total:</strong></td>
+            <td th:text="${#numbers.formatCurrency(totalAmount)}"></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <p>If you have any questions or feedback, please feel free to reach out!</p>
+    <p>Sincerely,</p>
+    <p>The EcommerceAPI Team</p>
+    <div class="footer">
+        <p>&copy; 2025 EcommerceAPI. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
