@@ -132,7 +132,7 @@ public class OrderService {
 
     @Transactional
     public void updateStatus(UUID id, OrderStatusDTO dto) {
-        Order order = repository.findById(id)
+        Order order = repository.findByIdWithItems(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
         OrderStatus oldStatus = order.getStatus();
