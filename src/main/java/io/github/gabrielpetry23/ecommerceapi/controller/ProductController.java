@@ -47,8 +47,8 @@ public class ProductController implements GenericController {
     public ResponseEntity<Object> create(@RequestBody @Valid ProductRequestDTO dto) {
         service.validateExistingCategoryId(dto.categoryId());
         Product product = mapper.toEntity(dto);
-        service.save(product);
-        URI location = generateHeaderLocation(product.getId());
+        Product savedProduct = service.save(product);
+        URI location = generateHeaderLocation(savedProduct.getId());
         return ResponseEntity.created(location).build();
     }
 

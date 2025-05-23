@@ -41,8 +41,8 @@ public class ClientController implements GenericController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid ClientDTO dto) {
         Client client = mapper.toEntity(dto);
-        service.save(client);
-        URI location = generateHeaderLocation(client.getId());
+        Client savedClient = service.save(client);
+        URI location = generateHeaderLocation(savedClient.getId());
         return ResponseEntity.created(location).build();
     }
 

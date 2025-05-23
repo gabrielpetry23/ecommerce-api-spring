@@ -111,7 +111,7 @@ public class CategoryController implements GenericController{
     ) {
         var category = mapper.toEntity(categoryDTO);
         service.update(UUID.fromString(id), category);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete a category", description = "Endpoint to delete a specific category by its ID. Requires MANAGER or ADMIN role.")

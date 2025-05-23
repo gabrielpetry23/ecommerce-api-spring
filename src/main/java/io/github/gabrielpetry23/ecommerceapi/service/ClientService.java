@@ -7,6 +7,7 @@ import io.github.gabrielpetry23.ecommerceapi.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class ClientService {
     private final ClientRepository repository;
     private final PasswordEncoder encoder;
 
+    @Transactional
     public Client save(Client client) {
         var encryptedPassword = encoder.encode(client.getClientSecret());
         client.setClientSecret(encryptedPassword);
@@ -32,6 +34,7 @@ public class ClientService {
         return repository.findByClientId(clientId);
     }
 
+    @Transactional
     public void update(String id, ClientDTO dto) {
 
         Optional<Client> existingClient = findById(UUID.fromString(id));
@@ -60,6 +63,7 @@ public class ClientService {
         repository.save(client);
     }
 
+    @Transactional
     public void delete(String id) {
         Optional<Client> existingClient = findById(UUID.fromString(id));
 

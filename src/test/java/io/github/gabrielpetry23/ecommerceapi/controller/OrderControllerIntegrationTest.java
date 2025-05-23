@@ -7,6 +7,7 @@ import io.github.gabrielpetry23.ecommerceapi.model.Order;
 import io.github.gabrielpetry23.ecommerceapi.model.OrderStatus;
 import io.github.gabrielpetry23.ecommerceapi.model.User;
 import io.github.gabrielpetry23.ecommerceapi.security.SecurityService;
+import io.github.gabrielpetry23.ecommerceapi.service.EmailService;
 import io.github.gabrielpetry23.ecommerceapi.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -60,6 +61,9 @@ public class OrderControllerIntegrationTest {
 
     @MockitoBean
     private SecurityService securityService;
+
+    @MockitoBean
+    private EmailService emailService;
 
     private final String ORDERS_ENDPOINT = "http://localhost/orders";
     private final UUID TEST_USER_ID = UUID.fromString("a1b2c3d4-e5f6-7890-1234-567890abcdef");
