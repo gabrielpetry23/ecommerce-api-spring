@@ -57,6 +57,7 @@ CREATE TABLE carts (
     user_id UUID NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total NUMERIC(18,2) NOT NULL DEFAULT 0.00,
     last_reminder_sent_at TIMESTAMP,
     CONSTRAINT fk_user_cart FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -78,11 +79,16 @@ CREATE TABLE orders (
     user_id UUID NOT NULL,
     status VARCHAR(50) NOT NULL,
     total NUMERIC(18,2) NOT NULL,
+    delivery_address_id UUID NOT NULL,
+    payment_method_id UUID NOT NULL,
+    coupon_id UUID,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_order FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_status CHECK (status IN ('PENDING', 'PAID', 'IN_PREPARATION', 'IN_DELIVERY', 'DELIVERED', 'CANCELLED'))
-
+    CONSTRAINT fk_order_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id);
+    CONSTRAINT fk_order_delivery_address FOREIGN KEY (delivery_address_id) REFERENCES addresses(id);
+    CONSTRAINT fk_order_payment_method FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id);
 );
 
 CREATE TABLE tracking_details (
@@ -148,10 +154,25 @@ CREATE TABLE payment_methods (
     user_id UUID NOT NULL,
     type VARCHAR(50) NOT NULL,
     card_number VARCHAR(255),
+    card_holder_name VARCHAR(255),
     expiry_date DATE,
+    cvv VARCHAR(4),
     provider VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_payment_method FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE payment_methods (
+    id UUID NOT NULL PRIMARY KEY,
+    type VARCHAR(50) NOT NULL,
+    provider VARCHAR(100) NOT NULL,
+    payment_token VARCHAR(255) NOT NULL UNIQUE, -- Token deve ser único
+    last4_digits VARCHAR(4), -- Últimos 4 dígitos para exibição
+    card_brand VARCHAR(50), -- Bandeira do cartão
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_payment_method FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE notifications (

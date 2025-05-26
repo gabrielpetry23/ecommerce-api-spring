@@ -21,7 +21,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String login = authentication.getName();
-        String senhaDigitada = authentication.getCredentials().toString();
+        String passwordEntered = authentication.getCredentials().toString();
 
         User userFound = userService.findByEmail(login);
 
@@ -31,7 +31,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         String encryptedPassword = userFound.getPassword();
 
-        boolean passwordMatches = passwordEncoder.matches(senhaDigitada, encryptedPassword);
+        boolean passwordMatches = passwordEncoder.matches(passwordEntered, encryptedPassword);
 
         if (passwordMatches) {
             return new CustomAuthentication(userFound);

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
@@ -21,18 +22,25 @@ public class PaymentMethod {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonManagedReference
     private User user;
 
     private String type;
-    private String cardNumber;
-    private LocalDate expiryDate;
     private String provider;
-    private String cardHolderName;
-    private String cvv;
+
+    @Column(name = "payment_token", unique = true, nullable = false)
+    private String paymentToken;
+
+    @Column(name = "last4_digits", length = 4)
+    private String last4Digits;
+    @Column(name = "card_brand")
+    private String cardBrand;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }

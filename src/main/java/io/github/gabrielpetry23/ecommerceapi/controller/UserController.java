@@ -210,8 +210,7 @@ public class UserController implements GenericController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Payment method added successfully",
                     headers = {
-                            @Header(name = "Location-Payment", description = "URI of the newly created payment method", schema = @Schema(type = "string", format = "uri")),
-                            @Header(name = "Location-User", description = "URI of the product to which the user was added", schema = @Schema(type = "string", format = "uri"))
+                            @Header(name = "Location", description = "URI of the newly created payment method", schema = @Schema(type = "string", format = "uri"))
                     }),
             @ApiResponse(responseCode = "400", description = "Validation error"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -278,7 +277,7 @@ public class UserController implements GenericController {
             @Parameter(name = "userId", in = ParameterIn.PATH, description = "ID of the user to update the payment method for", required = true, schema = @Schema(type = "string", format = "uuid"))
             @PathVariable("userId") String userId,
             @Parameter(name = "paymentMethodId", in = ParameterIn.PATH, description = "ID of the payment method to update", required = true, schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable("paymentMethodId") String paymentMethodId, @RequestBody PaymentMethodRequestDTO dto) {
+            @PathVariable("paymentMethodId") String paymentMethodId, @RequestBody PaymentMethodUpdateDTO dto) {
         service.updatePaymentMethod(userId, paymentMethodId, dto);
         return ResponseEntity.noContent().build();
     }

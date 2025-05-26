@@ -15,12 +15,8 @@ public interface PaymentMethodMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     PaymentMethod toEntity(PaymentMethodRequestDTO dto);
 
     PaymentMethodResponseDTO toDTO(PaymentMethod paymentMethod);
-
-    default LocalDate stringToLocalDate(String expiryDateString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(expiryDateString, formatter);
-    }
 }

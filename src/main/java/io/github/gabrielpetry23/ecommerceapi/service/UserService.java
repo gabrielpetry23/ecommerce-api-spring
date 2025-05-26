@@ -164,7 +164,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePaymentMethod(String userId, String paymentMethodId, PaymentMethodRequestDTO dto) {
+    public void updatePaymentMethod(String userId, String paymentMethodId, PaymentMethodUpdateDTO dto) {
         User user = repository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 

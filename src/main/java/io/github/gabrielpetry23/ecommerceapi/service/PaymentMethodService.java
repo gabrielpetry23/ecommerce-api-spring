@@ -2,6 +2,7 @@ package io.github.gabrielpetry23.ecommerceapi.service;
 
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodRequestDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodResponseDTO;
+import io.github.gabrielpetry23.ecommerceapi.controller.dto.PaymentMethodUpdateDTO;
 import io.github.gabrielpetry23.ecommerceapi.controller.mappers.PaymentMethodMapper;
 import io.github.gabrielpetry23.ecommerceapi.exceptions.EntityNotFoundException;
 import io.github.gabrielpetry23.ecommerceapi.model.PaymentMethod;
@@ -25,10 +26,14 @@ public class PaymentMethodService {
 
         PaymentMethod paymentMethod = new PaymentMethod();
 
-        paymentMethod.setCardNumber(dto.cardNumber());
-        paymentMethod.setCardHolderName(dto.cardHolderName());
-        paymentMethod.setExpiryDate(mapper.stringToLocalDate(dto.expiryDate()));
-        paymentMethod.setCvv(dto.cvv());
+        if (dto.cardBrand() != null) {
+            paymentMethod.setCardBrand(dto.cardBrand());
+        }
+
+        if (dto.last4Digits() != null) {
+            paymentMethod.setLast4Digits(dto.last4Digits());
+        }
+        paymentMethod.setPaymentToken(dto.paymentToken());
         paymentMethod.setType(dto.type());
         paymentMethod.setProvider(dto.provider());
         paymentMethod.setUser(user);
@@ -36,7 +41,7 @@ public class PaymentMethodService {
         return repository.save(paymentMethod);
     }
 
-    public void updatePaymentMethod(UUID userId, UUID paymentId, PaymentMethodRequestDTO dto) {
+    public void updatePaymentMethod(UUID userId, UUID paymentId, PaymentMethodUpdateDTO dto) {
 
         PaymentMethod paymentMethod = repository.findByIdAndUserId(paymentId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("PaymentMethod not found"));
@@ -45,28 +50,15 @@ public class PaymentMethodService {
             throw new IllegalArgumentException("PaymentMethod must exist to be updated");
         }
 
-        if (dto.cardNumber() != null) {
-            paymentMethod.setCardNumber(dto.cardNumber());
-        }
-
-        if (dto.cardHolderName() != null) {
-            paymentMethod.setCardHolderName(dto.cardHolderName());
-        }
-
-        if (dto.expiryDate() != null) {
-            paymentMethod.setExpiryDate(mapper.stringToLocalDate(dto.expiryDate()));
-        }
-
-        if (dto.cvv() != null) {
-            paymentMethod.setCvv(dto.cvv());
-        }
-
-        if (dto.type() != null) {
+        if (dto.type() != null && !dto.type().isBlank()) {
             paymentMethod.setType(dto.type());
         }
-
-        if (dto.provider() != null) {
+        if (dto.provider() != null && !dto.provider().isBlank()) {
             paymentMethod.setProvider(dto.provider());
+        }
+
+        if (dto.cardBrand() != null && !dto.cardBrand().isBlank()) {
+            paymentMethod.setCardBrand(dto.cardBrand());
         }
 
         repository.save(paymentMethod);

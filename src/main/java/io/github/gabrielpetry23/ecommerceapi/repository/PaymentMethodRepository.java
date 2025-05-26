@@ -10,8 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, UUID> {
-//    @Query("SELECT a FROM PaymentMethod a WHERE a.user.id = :userId")
-//    List<PaymentMethod> findPaymentMethodByUserId(@Param("userId") UUID userId);
+
     List<PaymentMethod> findAllByUserId(UUID userId);
 
     Optional<PaymentMethod> findByIdAndUserId(UUID paymentId, UUID userId);

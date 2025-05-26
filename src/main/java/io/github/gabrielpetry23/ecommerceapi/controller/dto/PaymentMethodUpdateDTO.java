@@ -1,13 +1,11 @@
 package io.github.gabrielpetry23.ecommerceapi.controller.dto;
 
-import java.time.LocalDate;
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-public record PaymentMethodResponseDTO(
-        UUID id,
+public record PaymentMethodUpdateDTO(
         String type,
         String provider,
-        String last4Digits,
         String cardBrand
 ) {
 }
