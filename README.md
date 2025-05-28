@@ -31,7 +31,7 @@ The E-commerce API was developed following layered architecture best practices, 
 
 You can view the ER diagram below (or access it in the `/docs` folder):
 
-![ER Diagram](./docs/Untitled.png)
+![ER Diagram](./docs/ER Diagram.png)
 
 ---
 
