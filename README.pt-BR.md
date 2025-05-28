@@ -153,7 +153,7 @@ Acesse o Swagger UI para explorar os endpoints:
 - Métodos de Pagamento: `/users/{userId}/payment-methods`
 - Métricas: `/dashboard/metrics`
 
-Usuários de teste e fluxo de autenticação completo estão descritos na documentação PDF.
+Usuários de teste e fluxo de autenticação completo estão descritos na documentação da wiki.
 
 ---
 
