@@ -142,7 +142,7 @@ Use the following URL to explore the API endpoints:
 - Payment Methods: `/users/{userId}/payment-methods`
 - Metrics: `/dashboard/metrics`
 
-Test users and full authentication flow are described in the documentation PDF.
+Test users and full authentication flow are described in the wiki documentation.
 
 ---
 
