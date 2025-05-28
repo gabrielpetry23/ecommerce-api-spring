@@ -2,7 +2,13 @@
 
 API RESTful desenvolvida com Java 17 e Spring Boot para gerenciamento completo de uma plataforma de e-commerce. A aplicação oferece recursos como autenticação com JWT e OAuth2, gerenciamento de produtos, pedidos, cupons, carrinho de compras, painel administrativo e notificações em tempo real.
 
-Para a versão original em[**Inglês**](README.md)
+Para a versão original em [**Inglês**](README.md)
+
+---
+
+## Documentação
+
+Para uma documentação completa e detalhada da API, incluindo **endpoints**, **autenticação**, **regras de negócio** e **como utilizá-la**, por favor, consulte nossa [**Documentação na Wiki**](https://github.com/gabrielpetry23/ecommerce-api-spring/wiki/Documentacao-Completa).
 
 ---
 
