@@ -1,6 +1,6 @@
 spring:
   profiles:
-      active: default
+    active: prod
   application:
     name: ecommerceAPI
   datasource:
@@ -35,6 +35,13 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
 app:
   email:
     from: Ecommerce Suport <${EMAIL_USERNAME}>

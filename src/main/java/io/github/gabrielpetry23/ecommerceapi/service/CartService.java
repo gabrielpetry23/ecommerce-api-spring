@@ -89,6 +89,7 @@ public class CartService {
         Cart cart = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         validator.validateCurrentUserAccessOrAdmin(cart.getUser().getId());
         cart.getItems().clear();
+        cart.setTotal(BigDecimal.ZERO);
         repository.save(cart);
     }
 

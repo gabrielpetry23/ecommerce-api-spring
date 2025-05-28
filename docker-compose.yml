@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ecommerce_db_local
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    image: gabrielpetry2/ecommerceapi:1.0
+    container_name: ecommerce_api_local
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://db:5432/ecommerce
+      DATASOURCE_USERNAME: postgres
+      DATASOURCE_PASSWORD: postgres
+      # ATENÇÃO: Para rodar localmente, substitua os valores abaixo por suas credenciais de teste
+      # ou dummy, especialmente para Google e E-mail.
+      GOOGLE_CLIENT_ID: "SUA_CLIENT_ID_LOCAL_OU_DUMMY"
+      GOOGLE_CLIENT_SECRET: "SUA_CLIENT_SECRET_LOCAL_OU_DUMMY"
+      EMAIL_USERNAME: "seu.email.teste@example.com"
+      EMAIL_PASSWORD: "sua_senha_email_teste"
+
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  db_data:
