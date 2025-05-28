@@ -131,6 +131,8 @@ Acesse o Swagger UI para explorar os endpoints:
 
 `http://localhost:8080/swagger-ui/index.html`
 
+---
+
 ### Rotas Principais
 
 - Autenticação: `/users/login`, `/oauth2/login`

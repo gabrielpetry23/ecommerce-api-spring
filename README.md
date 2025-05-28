@@ -133,6 +133,8 @@ Use the following URL to explore the API endpoints:
 
 `http://localhost:8080/swagger-ui/index.html`
 
+---
+
 ### Main Routes
 
 - Authentication: `/users/login`, `/oauth2/login`
