@@ -31,7 +31,7 @@ A E-commerce API foi desenvolvida com base em boas práticas de arquitetura em c
 
 O diagrama ER pode ser visualizado na imagem abaixo (ou acessado na pasta `/docs`).
 
-![Diagrama ER](./docs/ER Diagram.png)
+![Diagrama ER](./docs/ER%20Diagram.png)
 
 ---
 

@@ -31,7 +31,7 @@ The E-commerce API was developed following layered architecture best practices, 
 
 You can view the ER diagram below (or access it in the `/docs` folder):
 
-![ER Diagram](./docs/ER Diagram.png)
+![ER Diagram](./docs/ER%20Diagram.png)
 
 ---
 
@@ -39,7 +39,8 @@ You can view the ER diagram below (or access it in the `/docs` folder):
 
 The full technical documentation — including endpoints, examples, business rules, workflows, and more — is available at:
 
-📄 [`/docs/Documentacao_Completa.pdf`](./docs/Documentacao_Completa.pdf)
+[`/docs/pt-br/Documentacao Completa.pdf`](./docs/pt-br/Documentacao%20Completa.pdf)
+[`/docs/en/Full Documentation.pdf`](./docs/en/Full%20Documentation.pdf)
 
 The PDF includes both English and Brazilian Portuguese sections.
 
